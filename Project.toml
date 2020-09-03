@@ -1,0 +1,8 @@
+name = "CUDATutorials"
+uuid = "8d564016-0a89-4fc6-a3a0-4211001cf922"
+authors = ["Ellipse0934 <Ellipse0934@github.com>"]
+version = "0.1.0"
+
+[deps]
+CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
+Weave = "44d3d7a6-8a23-5bf8-98c5-b353f8df5ec9"
