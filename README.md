@@ -7,7 +7,7 @@ The first month's content will focus on introducing the GPU programming model an
 ### Google Season of Docs info
 
 - Project Title: Documentation for the JuliaGPU stack. [(link)](https://developers.google.com/season-of-docs/docs/participants/project-julialang-ellipse0934)
-- Technical Writer: Aditya Puranik
-- Mentors: [Tim Besard](maleadt) and [Valentin Churavy](https://github.com/vchuravy)
+- Technical Writer: Aditya Puranik (Ellipse0934)
+- Mentors: [Tim Besard](https://github.com/maleadt) and [Valentin Churavy](https://github.com/vchuravy)
 
 Special thanks to Google Season of Docs for fiscally supporting this project and to the Julialang organisation for participating in this programme.
