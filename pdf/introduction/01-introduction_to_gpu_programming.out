@@ -1,0 +1,6 @@
+\BOOKMARK [1][-]{section.1}{Introduction\040to\040GPU\040Programming}{}% 1
+\BOOKMARK [1][-]{section.2}{Parallelizing\040AXPY}{}% 2
+\BOOKMARK [2][-]{subsubsection.2.0.1}{CPU\040multithreaded\040version}{section.2}% 3
+\BOOKMARK [3][-]{subsubsection.2.0.2}{GPU\040version}{subsubsection.2.0.1}% 4
+\BOOKMARK [3][-]{subsubsection.2.0.3}{Measuring\040Time}{subsubsection.2.0.1}% 5
+\BOOKMARK [1][-]{section.3}{GPU\040Architecture}{}% 6

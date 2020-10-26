@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1"
+     width="180mm" height="25mm"
+     viewBox="0 0 33 1" preserveAspectRatio="none"
+     shape-rendering="crispEdges" stroke="none">
+<rect width=".82" height=".96" x="0" y="0" fill="#610102" />
+<rect width=".82" height=".96" x="1" y="0" fill="#820C0A" />
+<rect width=".82" height=".96" x="2" y="0" fill="#A11C18" />
+<rect width=".82" height=".96" x="3" y="0" fill="#BB2E26" />
+<rect width=".82" height=".96" x="4" y="0" fill="#D14136" />
+<rect width=".82" height=".96" x="5" y="0" fill="#E35546" />
+<rect width=".82" height=".96" x="6" y="0" fill="#F16858" />
+<rect width=".82" height=".96" x="7" y="0" fill="#FB7B6A" />
+<rect width=".82" height=".96" x="8" y="0" fill="#FF8D7B" />
+<rect width=".82" height=".96" x="9" y="0" fill="#FF9E8C" />
+<rect width=".82" height=".96" x="10" y="0" fill="#FFAE9D" />
+<rect width=".82" height=".96" x="11" y="0" fill="#FFBCAD" />
+<rect width=".82" height=".96" x="12" y="0" fill="#FFCABD" />
+<rect width=".82" height=".96" x="13" y="0" fill="#FFD6CC" />
+<rect width=".82" height=".96" x="14" y="0" fill="#FFE2DA" />
+<rect width=".82" height=".96" x="15" y="0" fill="#FFECE7" />
+<rect width=".82" height=".96" x="16" y="0" fill="#F9F8F9" />
+<rect width=".82" height=".96" x="17" y="0" fill="#E5F4FD" />
+<rect width=".82" height=".96" x="18" y="0" fill="#D7EEFB" />
+<rect width=".82" height=".96" x="19" y="0" fill="#C8E6F9" />
+<rect width=".82" height=".96" x="20" y="0" fill="#B9DEF7" />
+<rect width=".82" height=".96" x="21" y="0" fill="#A9D5F4" />
+<rect width=".82" height=".96" x="22" y="0" fill="#98CBF1" />
+<rect width=".82" height=".96" x="23" y="0" fill="#87C0ED" />
+<rect width=".82" height=".96" x="24" y="0" fill="#76B4E8" />
+<rect width=".82" height=".96" x="25" y="0" fill="#65A7E1" />
+<rect width=".82" height=".96" x="26" y="0" fill="#5598D8" />
+<rect width=".82" height=".96" x="27" y="0" fill="#4588CC" />
+<rect width=".82" height=".96" x="28" y="0" fill="#3777BC" />
+<rect width=".82" height=".96" x="29" y="0" fill="#2B65A9" />
+<rect width=".82" height=".96" x="30" y="0" fill="#1F5392" />
+<rect width=".82" height=".96" x="31" y="0" fill="#143F77" />
+<rect width=".82" height=".96" x="32" y="0" fill="#082C59" />
+</svg>
