@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<HTML lang = "en">
+<HEAD>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  
+  
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]},
+      TeX: { equationNumbers: { autoNumber: "AMS" } }
+    });
+  </script>
+
+  <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+  </script>
+
+  
+<style>
+pre.hljl {
+    border: 1px solid #ccc;
+    margin: 5px;
+    padding: 5px;
+    overflow-x: auto;
+    color: rgb(68,68,68); background-color: rgb(251,251,251); }
+pre.hljl > span.hljl-t { }
+pre.hljl > span.hljl-w { }
+pre.hljl > span.hljl-e { }
+pre.hljl > span.hljl-eB { }
+pre.hljl > span.hljl-o { }
+pre.hljl > span.hljl-k { color: rgb(148,91,176); font-weight: bold; }
+pre.hljl > span.hljl-kc { color: rgb(59,151,46); font-style: italic; }
+pre.hljl > span.hljl-kd { color: rgb(214,102,97); font-style: italic; }
+pre.hljl > span.hljl-kn { color: rgb(148,91,176); font-weight: bold; }
+pre.hljl > span.hljl-kp { color: rgb(148,91,176); font-weight: bold; }
+pre.hljl > span.hljl-kr { color: rgb(148,91,176); font-weight: bold; }
+pre.hljl > span.hljl-kt { color: rgb(148,91,176); font-weight: bold; }
+pre.hljl > span.hljl-n { }
+pre.hljl > span.hljl-na { }
+pre.hljl > span.hljl-nb { }
+pre.hljl > span.hljl-nbp { }
+pre.hljl > span.hljl-nc { }
+pre.hljl > span.hljl-ncB { }
+pre.hljl > span.hljl-nd { color: rgb(214,102,97); }
+pre.hljl > span.hljl-ne { }
+pre.hljl > span.hljl-neB { }
+pre.hljl > span.hljl-nf { color: rgb(66,102,213); }
+pre.hljl > span.hljl-nfm { color: rgb(66,102,213); }
+pre.hljl > span.hljl-np { }
+pre.hljl > span.hljl-nl { }
+pre.hljl > span.hljl-nn { }
+pre.hljl > span.hljl-no { }
+pre.hljl > span.hljl-nt { }
+pre.hljl > span.hljl-nv { }
+pre.hljl > span.hljl-nvc { }
+pre.hljl > span.hljl-nvg { }
+pre.hljl > span.hljl-nvi { }
+pre.hljl > span.hljl-nvm { }
+pre.hljl > span.hljl-l { }
+pre.hljl > span.hljl-ld { color: rgb(148,91,176); font-style: italic; }
+pre.hljl > span.hljl-s { color: rgb(201,61,57); }
+pre.hljl > span.hljl-sa { color: rgb(201,61,57); }
+pre.hljl > span.hljl-sb { color: rgb(201,61,57); }
+pre.hljl > span.hljl-sc { color: rgb(201,61,57); }
+pre.hljl > span.hljl-sd { color: rgb(201,61,57); }
+pre.hljl > span.hljl-sdB { color: rgb(201,61,57); }
+pre.hljl > span.hljl-sdC { color: rgb(201,61,57); }
+pre.hljl > span.hljl-se { color: rgb(59,151,46); }
+pre.hljl > span.hljl-sh { color: rgb(201,61,57); }
+pre.hljl > span.hljl-si { }
+pre.hljl > span.hljl-so { color: rgb(201,61,57); }
+pre.hljl > span.hljl-sr { color: rgb(201,61,57); }
+pre.hljl > span.hljl-ss { color: rgb(201,61,57); }
+pre.hljl > span.hljl-ssB { color: rgb(201,61,57); }
+pre.hljl > span.hljl-nB { color: rgb(59,151,46); }
+pre.hljl > span.hljl-nbB { color: rgb(59,151,46); }
+pre.hljl > span.hljl-nfB { color: rgb(59,151,46); }
+pre.hljl > span.hljl-nh { color: rgb(59,151,46); }
+pre.hljl > span.hljl-ni { color: rgb(59,151,46); }
+pre.hljl > span.hljl-nil { color: rgb(59,151,46); }
+pre.hljl > span.hljl-noB { color: rgb(59,151,46); }
+pre.hljl > span.hljl-oB { color: rgb(102,102,102); font-weight: bold; }
+pre.hljl > span.hljl-ow { color: rgb(102,102,102); font-weight: bold; }
+pre.hljl > span.hljl-p { }
+pre.hljl > span.hljl-c { color: rgb(153,153,119); font-style: italic; }
+pre.hljl > span.hljl-ch { color: rgb(153,153,119); font-style: italic; }
+pre.hljl > span.hljl-cm { color: rgb(153,153,119); font-style: italic; }
+pre.hljl > span.hljl-cp { color: rgb(153,153,119); font-style: italic; }
+pre.hljl > span.hljl-cpB { color: rgb(153,153,119); font-style: italic; }
+pre.hljl > span.hljl-cs { color: rgb(153,153,119); font-style: italic; }
+pre.hljl > span.hljl-csB { color: rgb(153,153,119); font-style: italic; }
+pre.hljl > span.hljl-g { }
+pre.hljl > span.hljl-gd { }
+pre.hljl > span.hljl-ge { }
+pre.hljl > span.hljl-geB { }
+pre.hljl > span.hljl-gh { }
+pre.hljl > span.hljl-gi { }
+pre.hljl > span.hljl-go { }
+pre.hljl > span.hljl-gp { }
+pre.hljl > span.hljl-gs { }
+pre.hljl > span.hljl-gsB { }
+pre.hljl > span.hljl-gt { }
+</style>
+
+
+
+  <style type="text/css">
+  @font-face {
+  font-style: normal;
+  font-weight: 300;
+}
+@font-face {
+  font-style: normal;
+  font-weight: 400;
+}
+@font-face {
+  font-style: normal;
+  font-weight: 600;
+}
+html {
+  font-family: sans-serif; /* 1 */
+  -ms-text-size-adjust: 100%; /* 2 */
+  -webkit-text-size-adjust: 100%; /* 2 */
+}
+body {
+  margin: 0;
+}
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+main,
+menu,
+nav,
+section,
+summary {
+  display: block;
+}
+audio,
+canvas,
+progress,
+video {
+  display: inline-block; /* 1 */
+  vertical-align: baseline; /* 2 */
+}
+audio:not([controls]) {
+  display: none;
+  height: 0;
+}
+[hidden],
+template {
+  display: none;
+}
+a:active,
+a:hover {
+  outline: 0;
+}
+abbr[title] {
+  border-bottom: 1px dotted;
+}
+b,
+strong {
+  font-weight: bold;
+}
+dfn {
+  font-style: italic;
+}
+h1 {
+  font-size: 2em;
+  margin: 0.67em 0;
+}
+mark {
+  background: #ff0;
+  color: #000;
+}
+small {
+  font-size: 80%;
+}
+sub,
+sup {
+  font-size: 75%;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+}
+sup {
+  top: -0.5em;
+}
+sub {
+  bottom: -0.25em;
+}
+img {
+  border: 0;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 70%;
+}
+svg:not(:root) {
+  overflow: hidden;
+}
+figure {
+  margin: 1em 40px;
+}
+hr {
+  -moz-box-sizing: content-box;
+  box-sizing: content-box;
+  height: 0;
+}
+pre {
+  overflow: auto;
+}
+code,
+kbd,
+pre,
+samp {
+  font-family: monospace, monospace;
+  font-size: 1em;
+}
+button,
+input,
+optgroup,
+select,
+textarea {
+  color: inherit; /* 1 */
+  font: inherit; /* 2 */
+  margin: 0; /* 3 */
+}
+button {
+  overflow: visible;
+}
+button,
+select {
+  text-transform: none;
+}
+button,
+html input[type="button"], /* 1 */
+input[type="reset"],
+input[type="submit"] {
+  -webkit-appearance: button; /* 2 */
+  cursor: pointer; /* 3 */
+}
+button[disabled],
+html input[disabled] {
+  cursor: default;
+}
+button::-moz-focus-inner,
+input::-moz-focus-inner {
+  border: 0;
+  padding: 0;
+}
+input {
+  line-height: normal;
+}
+input[type="checkbox"],
+input[type="radio"] {
+  box-sizing: border-box; /* 1 */
+  padding: 0; /* 2 */
+}
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  height: auto;
+}
+input[type="search"] {
+  -webkit-appearance: textfield; /* 1 */
+  -moz-box-sizing: content-box;
+  -webkit-box-sizing: content-box; /* 2 */
+  box-sizing: content-box;
+}
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-decoration {
+  -webkit-appearance: none;
+}
+fieldset {
+  border: 1px solid #c0c0c0;
+  margin: 0 2px;
+  padding: 0.35em 0.625em 0.75em;
+}
+legend {
+  border: 0; /* 1 */
+  padding: 0; /* 2 */
+}
+textarea {
+  overflow: auto;
+}
+optgroup {
+  font-weight: bold;
+}
+table {
+  font-family: monospace, monospace;
+  font-size : 0.8em;
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+td,
+th {
+  padding: 0;
+}
+thead th {
+    border-bottom: 1px solid black;
+    background-color: white;
+}
+tr:nth-child(odd){
+  background-color: rgb(248,248,248);
+}
+
+
+/*
+* Skeleton V2.0.4
+* Copyright 2014, Dave Gamache
+* www.getskeleton.com
+* Free to use under the MIT license.
+* http://www.opensource.org/licenses/mit-license.php
+* 12/29/2014
+*/
+.container {
+  position: relative;
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 20px;
+  box-sizing: border-box; }
+.column,
+.columns {
+  width: 100%;
+  float: left;
+  box-sizing: border-box; }
+@media (min-width: 400px) {
+  .container {
+    width: 85%;
+    padding: 0; }
+}
+@media (min-width: 550px) {
+  .container {
+    width: 80%; }
+  .column,
+  .columns {
+    margin-left: 4%; }
+  .column:first-child,
+  .columns:first-child {
+    margin-left: 0; }
+
+  .one.column,
+  .one.columns                    { width: 4.66666666667%; }
+  .two.columns                    { width: 13.3333333333%; }
+  .three.columns                  { width: 22%;            }
+  .four.columns                   { width: 30.6666666667%; }
+  .five.columns                   { width: 39.3333333333%; }
+  .six.columns                    { width: 48%;            }
+  .seven.columns                  { width: 56.6666666667%; }
+  .eight.columns                  { width: 65.3333333333%; }
+  .nine.columns                   { width: 74.0%;          }
+  .ten.columns                    { width: 82.6666666667%; }
+  .eleven.columns                 { width: 91.3333333333%; }
+  .twelve.columns                 { width: 100%; margin-left: 0; }
+
+  .one-third.column               { width: 30.6666666667%; }
+  .two-thirds.column              { width: 65.3333333333%; }
+
+  .one-half.column                { width: 48%; }
+
+  /* Offsets */
+  .offset-by-one.column,
+  .offset-by-one.columns          { margin-left: 8.66666666667%; }
+  .offset-by-two.column,
+  .offset-by-two.columns          { margin-left: 17.3333333333%; }
+  .offset-by-three.column,
+  .offset-by-three.columns        { margin-left: 26%;            }
+  .offset-by-four.column,
+  .offset-by-four.columns         { margin-left: 34.6666666667%; }
+  .offset-by-five.column,
+  .offset-by-five.columns         { margin-left: 43.3333333333%; }
+  .offset-by-six.column,
+  .offset-by-six.columns          { margin-left: 52%;            }
+  .offset-by-seven.column,
+  .offset-by-seven.columns        { margin-left: 60.6666666667%; }
+  .offset-by-eight.column,
+  .offset-by-eight.columns        { margin-left: 69.3333333333%; }
+  .offset-by-nine.column,
+  .offset-by-nine.columns         { margin-left: 78.0%;          }
+  .offset-by-ten.column,
+  .offset-by-ten.columns          { margin-left: 86.6666666667%; }
+  .offset-by-eleven.column,
+  .offset-by-eleven.columns       { margin-left: 95.3333333333%; }
+
+  .offset-by-one-third.column,
+  .offset-by-one-third.columns    { margin-left: 34.6666666667%; }
+  .offset-by-two-thirds.column,
+  .offset-by-two-thirds.columns   { margin-left: 69.3333333333%; }
+
+  .offset-by-one-half.column,
+  .offset-by-one-half.columns     { margin-left: 52%; }
+
+}
+html {
+  font-size: 62.5%; }
+body {
+  font-size: 1.5em; /* currently ems cause chrome bug misinterpreting rems on body element */
+  line-height: 1.6;
+  font-weight: 400;
+  font-family: "Raleway", "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color: #222; }
+h1, h2, h3, h4, h5, h6 {
+  margin-top: 0;
+  margin-bottom: 2rem;
+  font-weight: 300; }
+h1 { font-size: 3.6rem; line-height: 1.2;  letter-spacing: -.1rem;}
+h2 { font-size: 3.4rem; line-height: 1.25; letter-spacing: -.1rem; }
+h3 { font-size: 3.2rem; line-height: 1.3;  letter-spacing: -.1rem; }
+h4 { font-size: 2.8rem; line-height: 1.35; letter-spacing: -.08rem; }
+h5 { font-size: 2.4rem; line-height: 1.5;  letter-spacing: -.05rem; }
+h6 { font-size: 1.5rem; line-height: 1.6;  letter-spacing: 0; }
+
+p {
+  margin-top: 0; }
+a {
+  color: #1EAEDB; }
+a:hover {
+  color: #0FA0CE; }
+.button,
+button,
+input[type="submit"],
+input[type="reset"],
+input[type="button"] {
+  display: inline-block;
+  height: 38px;
+  padding: 0 30px;
+  color: #555;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 38px;
+  letter-spacing: .1rem;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  background-color: transparent;
+  border-radius: 4px;
+  border: 1px solid #bbb;
+  cursor: pointer;
+  box-sizing: border-box; }
+.button:hover,
+button:hover,
+input[type="submit"]:hover,
+input[type="reset"]:hover,
+input[type="button"]:hover,
+.button:focus,
+button:focus,
+input[type="submit"]:focus,
+input[type="reset"]:focus,
+input[type="button"]:focus {
+  color: #333;
+  border-color: #888;
+  outline: 0; }
+.button.button-primary,
+button.button-primary,
+input[type="submit"].button-primary,
+input[type="reset"].button-primary,
+input[type="button"].button-primary {
+  color: #FFF;
+  background-color: #33C3F0;
+  border-color: #33C3F0; }
+.button.button-primary:hover,
+button.button-primary:hover,
+input[type="submit"].button-primary:hover,
+input[type="reset"].button-primary:hover,
+input[type="button"].button-primary:hover,
+.button.button-primary:focus,
+button.button-primary:focus,
+input[type="submit"].button-primary:focus,
+input[type="reset"].button-primary:focus,
+input[type="button"].button-primary:focus {
+  color: #FFF;
+  background-color: #1EAEDB;
+  border-color: #1EAEDB; }
+input[type="email"],
+input[type="number"],
+input[type="search"],
+input[type="text"],
+input[type="tel"],
+input[type="url"],
+input[type="password"],
+textarea,
+select {
+  height: 38px;
+  padding: 6px 10px; /* The 6px vertically centers text on FF, ignored by Webkit */
+  background-color: #fff;
+  border: 1px solid #D1D1D1;
+  border-radius: 4px;
+  box-shadow: none;
+  box-sizing: border-box; }
+/* Removes awkward default styles on some inputs for iOS */
+input[type="email"],
+input[type="number"],
+input[type="search"],
+input[type="text"],
+input[type="tel"],
+input[type="url"],
+input[type="password"],
+textarea {
+  -webkit-appearance: none;
+     -moz-appearance: none;
+          appearance: none; }
+textarea {
+  min-height: 65px;
+  padding-top: 6px;
+  padding-bottom: 6px; }
+input[type="email"]:focus,
+input[type="number"]:focus,
+input[type="search"]:focus,
+input[type="text"]:focus,
+input[type="tel"]:focus,
+input[type="url"]:focus,
+input[type="password"]:focus,
+textarea:focus,
+select:focus {
+  border: 1px solid #33C3F0;
+  outline: 0; }
+label,
+legend {
+  display: block;
+  margin-bottom: .5rem;
+  font-weight: 600; }
+fieldset {
+  padding: 0;
+  border-width: 0; }
+input[type="checkbox"],
+input[type="radio"] {
+  display: inline; }
+label > .label-body {
+  display: inline-block;
+  margin-left: .5rem;
+  font-weight: normal; }
+ul {
+  list-style: circle; }
+ol {
+  list-style: decimal; }
+ul ul,
+ul ol,
+ol ol,
+ol ul {
+  margin: 1.5rem 0 1.5rem 3rem;
+  font-size: 90%; }
+li > p {margin : 0;}
+th,
+td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #E1E1E1; }
+th:first-child,
+td:first-child {
+  padding-left: 0; }
+th:last-child,
+td:last-child {
+  padding-right: 0; }
+button,
+.button {
+  margin-bottom: 1rem; }
+input,
+textarea,
+select,
+fieldset {
+  margin-bottom: 1.5rem; }
+pre,
+blockquote,
+dl,
+figure,
+table,
+p,
+ul,
+ol,
+form {
+  margin-bottom: 1.0rem; }
+.u-full-width {
+  width: 100%;
+  box-sizing: border-box; }
+.u-max-full-width {
+  max-width: 100%;
+  box-sizing: border-box; }
+.u-pull-right {
+  float: right; }
+.u-pull-left {
+  float: left; }
+hr {
+  margin-top: 3rem;
+  margin-bottom: 3.5rem;
+  border-width: 0;
+  border-top: 1px solid #E1E1E1; }
+.container:after,
+.row:after,
+.u-cf {
+  content: "";
+  display: table;
+  clear: both; }
+
+pre {
+  display: block;
+  padding: 9.5px;
+  margin: 0 0 10px;
+  font-size: 13px;
+  line-height: 1.42857143;
+  word-break: break-all;
+  word-wrap: break-word;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+pre.hljl {
+  margin: 0 0 10px;
+  display: block;
+  background: #f5f5f5;
+  border-radius: 4px;
+  padding : 5px;
+}
+
+pre.output {
+  background: #ffffff;
+}
+
+pre.code {
+  background: #ffffff;
+}
+
+pre.julia-error {
+  color : red
+}
+
+code,
+kbd,
+pre,
+samp {
+  font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+  font-size: 13px;
+  background-color: #f5f5f5
+}
+
+
+@media (min-width: 400px) {}
+@media (min-width: 550px) {}
+@media (min-width: 750px) {}
+@media (min-width: 1000px) {}
+@media (min-width: 1200px) {}
+
+h1.title {margin-top : 20px}
+img {max-width : 100%}
+div.title {text-align: center;}
+
+  </style>
+</HEAD>
+
+<BODY>
+  <div class ="container">
+    <div class = "row">
+      <div class = "col-md-12 twelve columns">
+        <div class="title">
+          
+          
+          
+        </div>
+
+        <h1>Introduction to GPU Programming</h1>
+<p>The following tutorials assume that you have have setup <a href="https://github.com/JuliaGPU/CUDA.jl">CUDA.jl</a>. Detailed installation instructions can be found <a href="https://juliagpu.gitlab.io/CUDA.jl/installation/overview/#InstallationOverview">here</a>.</p>
+<p>You may check if your <code>CUDA.jl</code> installation is functional using </p>
+
+
+<pre class='hljl'>
+<span class='hljl-k'>using</span><span class='hljl-t'> </span><span class='hljl-n'>CUDA</span><span class='hljl-t'>
+</span><span class='hljl-n'>CUDA</span><span class='hljl-oB'>.</span><span class='hljl-nf'>functional</span><span class='hljl-p'>()</span>
+</pre>
+
+
+<pre class="output">
+true
+</pre>
+
+
+<p>If <code>CUDA.functional&#40;&#41;</code> returns false then the package is in a non-functional state and you should follow the <a href="https://juliagpu.gitlab.io/CUDA.jl/installation/overview/">documentation</a> to get it working.</p>
+<p>Also explained in the <a href="https://juliagpu.gitlab.io/CUDA.jl/usage/overview/">usage</a> section of the <code>CUDA.jl</code> <a href="https://juliagpu.gitlab.io/CUDA.jl/">docs</a> is an overview of <code>CUDA.jl</code>&#39;s functionality which can work at three distinct levels.</p>
+<ul>
+<li><p>Array Abstractions: With the help of the <code>CuArray</code> type we can use Base&#39;s array abstractions like broadcasting and mapreduce. </p>
+</li>
+<li><p>Native Kernels: Write kernels which compiles to native GPU code directly from Julia.</p>
+</li>
+<li><p>CUDA API wrappers: Call CUDA libraries directly from Julia for bleeding edge performance.</p>
+</li>
+</ul>
+<p>The purpose of these tutorials is to teach you effective GPU programming. The tutorials here complement other GPU programming resources such as the NVIDIA blogs, other online resources and formal textbooks. Using other resources in your study will complement these tutorials and is highly encouraged. Some suggested resources are listed at the end of this tutorial.</p>
+<p>A GPU &#40;graphical processing unit&#41; is a device specially designed for graphics work. Graphical tasks are a good candidate for parallelization and  GPU&#39;s exploit it by having a large number of less powerful processors instead of a single very powerful processor. In 2007 NVIDIA released CUDA &#40;Compute Unified Device Architecture&#41;, a parallel programming platform &#40;hardware and software stack&#41; which alongside graphics also focusses scientific computation. Modern GPU&#39;s are commonly called GPGPU &#40;general purpose GPU&#41; which shows their importance in scientific computation alongside graphics.</p>
+<p>Programs which execute on the GPU are vastly different due to its different architecture. There are new paradigms and algorithms to learn. Understanding how a GPU works is crucial to maximizing the performance of your application.</p>
+<h2>Parallelizing AXPY</h2>
+<p><a href="https://en.wikipedia.org/wiki/Basic_Linear_Algebra_Subprograms">Basic Linear Algebra Subroutines&#40;BLAS&#41;</a> are subroutines for Linear Algebra operations. Linear algebra&#39;s importance in scientific computing makes BLAS essential to GPU computing. One of the most primitive BLAS operations is to scale a vector and add it to another vector. Given two vectors &#40;<span class="math">$x$</span> and <span class="math">$y$</span>&#41; and a scalar &#40;<span class="math">$\alpha$</span>&#41; we add <span class="math">$\alpha\cdot x$</span> to <span class="math">$y$</span>. In BLAS libraries this manifests as the functions SAXPY, DAXPY and CAXPY. The difference between the three is that the data type of the vectors is <code>Float32</code>, <code>Float64</code> and <code>Complex&#123;Float32&#125;</code> respectively. However in this example we call our subroutine <code>axpy</code> and let Julia take care of the types.</p>
+
+
+<pre class='hljl'>
+<span class='hljl-k'>function</span><span class='hljl-t'> </span><span class='hljl-nf'>axpy!</span><span class='hljl-p'>(</span><span class='hljl-n'>A</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>X</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>Y</span><span class='hljl-p'>)</span><span class='hljl-t'> 
+    </span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-n'>i</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-nf'>eachindex</span><span class='hljl-p'>(</span><span class='hljl-n'>Y</span><span class='hljl-p'>)</span><span class='hljl-t'>
+        </span><span class='hljl-nd'>@inbounds</span><span class='hljl-t'> </span><span class='hljl-n'>Y</span><span class='hljl-p'>[</span><span class='hljl-n'>i</span><span class='hljl-p'>]</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>A</span><span class='hljl-t'> </span><span class='hljl-oB'>*</span><span class='hljl-t'> </span><span class='hljl-n'>X</span><span class='hljl-p'>[</span><span class='hljl-n'>i</span><span class='hljl-p'>]</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-n'>Y</span><span class='hljl-p'>[</span><span class='hljl-n'>i</span><span class='hljl-p'>]</span><span class='hljl-t'>
+    </span><span class='hljl-k'>end</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span><span class='hljl-t'>
+
+</span><span class='hljl-n'>N</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-ni'>2</span><span class='hljl-oB'>^</span><span class='hljl-ni'>29</span><span class='hljl-t'>
+</span><span class='hljl-n'>v1</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>rand</span><span class='hljl-p'>(</span><span class='hljl-n'>Float32</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>N</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-n'>v2</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>rand</span><span class='hljl-p'>(</span><span class='hljl-n'>Float32</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>N</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-n'>v2_copy</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>copy</span><span class='hljl-p'>(</span><span class='hljl-n'>v2</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-cs'># maintain a copy of the original</span><span class='hljl-t'>
+</span><span class='hljl-n'>α</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>rand</span><span class='hljl-p'>()</span><span class='hljl-t'>
+
+</span><span class='hljl-nf'>axpy!</span><span class='hljl-p'>(</span><span class='hljl-n'>α</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>v1</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>v2</span><span class='hljl-p'>)</span>
+</pre>
+
+
+
+<p>Alternatively, we can also use Julia&#39;s <a href="https://docs.julialang.org/en/v1/manual/arrays/#Broadcasting">broadcasting</a> syntax which allows us to write it in simpler and equally performant version. </p>
+
+
+<pre class='hljl'>
+<span class='hljl-n'>v3</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>copy</span><span class='hljl-p'>(</span><span class='hljl-n'>v2_copy</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-n'>v3</span><span class='hljl-t'> </span><span class='hljl-oB'>.+=</span><span class='hljl-t'> </span><span class='hljl-n'>α</span><span class='hljl-t'> </span><span class='hljl-oB'>*</span><span class='hljl-t'> </span><span class='hljl-n'>v1</span><span class='hljl-t'>
+
+</span><span class='hljl-nd'>@show</span><span class='hljl-t'> </span><span class='hljl-n'>v2</span><span class='hljl-t'> </span><span class='hljl-oB'>==</span><span class='hljl-t'> </span><span class='hljl-n'>v3</span>
+</pre>
+
+
+<pre class="output">
+v2 &#61;&#61; v3 &#61; true
+true
+</pre>
+
+
+<h4>CPU multithreaded version</h4>
+<p>Consider parallelization on a CPU with <code>p</code> processors. We can divide our arrays into <code>p</code> subarrays of equal size and assign a processor to each subarray. This can theoretically make our parallel version <code>p</code> times faster. We say &quot;theoretically&quot; because there is an overhead of starting threads and synchronizing them. Our hope in parallel computing is that the cost will get amortized with the speedup of parallelization, but that may not be the case. Which is why measuring performance is extremely important. Nevertheless, the parallel version asymptotically scales linearly w.r.t <code>p</code> which is really good, so much so that these types of problems are classified as &quot;embarassingly parallel&quot;. In other cases when processors need to communicate and synchronize frquently the benefit does not scale linearly with the number of processors.</p>
+<p>We can use Julia&#39;s inbuilt multithreading functionality to use multiple CPU threads which is documented&#40;<a href="https://docs.julialang.org/en/v1/manual/multi-threading/">here</a>&#41;. You need to ensure that Julia starts with the appropriate number of threads using the environment variable or startup option&#40;<code>-t NUMTHREADS</code>&#41;, instructions for which are given in the docs.</p>
+<p>A common theme in parallel computing is the concept of thread rank or id. Each thread has a unique id/rank which helps us identify them and map them to tasks easily.</p>
+
+
+<pre class='hljl'>
+<span class='hljl-k'>using</span><span class='hljl-t'> </span><span class='hljl-n'>Base</span><span class='hljl-oB'>.</span><span class='hljl-n'>Threads</span><span class='hljl-t'>
+
+</span><span class='hljl-nf'>println</span><span class='hljl-p'>(</span><span class='hljl-s'>&quot;Number of CPU threads = &quot;</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-nf'>nthreads</span><span class='hljl-p'>())</span><span class='hljl-t'>
+
+</span><span class='hljl-cs'># pseudocode for parallel saxpy</span><span class='hljl-t'>
+</span><span class='hljl-k'>function</span><span class='hljl-t'> </span><span class='hljl-nf'>parallel_axpy!</span><span class='hljl-p'>(</span><span class='hljl-n'>A</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>X</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>Y</span><span class='hljl-p'>)</span><span class='hljl-t'>
+    </span><span class='hljl-n'>len</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>cld</span><span class='hljl-p'>(</span><span class='hljl-nf'>length</span><span class='hljl-p'>(</span><span class='hljl-n'>X</span><span class='hljl-p'>),</span><span class='hljl-t'> </span><span class='hljl-nf'>nthreads</span><span class='hljl-p'>())</span><span class='hljl-t'>
+
+    </span><span class='hljl-cs'># Launch threads = nthreads()</span><span class='hljl-t'>
+    </span><span class='hljl-n'>Threads</span><span class='hljl-oB'>.</span><span class='hljl-nd'>@threads</span><span class='hljl-t'> </span><span class='hljl-k'>for</span><span class='hljl-t'> </span><span class='hljl-n'>i</span><span class='hljl-t'> </span><span class='hljl-kp'>in</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-oB'>:</span><span class='hljl-nf'>nthreads</span><span class='hljl-p'>()</span><span class='hljl-t'>
+        </span><span class='hljl-cs'># set id to thread rank/id</span><span class='hljl-t'>
+        </span><span class='hljl-n'>tid</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>threadid</span><span class='hljl-p'>()</span><span class='hljl-t'>
+        </span><span class='hljl-n'>low</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-p'>(</span><span class='hljl-n'>tid</span><span class='hljl-t'> </span><span class='hljl-oB'>-</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-p'>)</span><span class='hljl-oB'>*</span><span class='hljl-n'>len</span><span class='hljl-t'>
+        </span><span class='hljl-n'>high</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>min</span><span class='hljl-p'>(</span><span class='hljl-nf'>length</span><span class='hljl-p'>(</span><span class='hljl-n'>X</span><span class='hljl-p'>),</span><span class='hljl-t'> </span><span class='hljl-n'>len</span><span class='hljl-t'> </span><span class='hljl-oB'>*</span><span class='hljl-t'> </span><span class='hljl-n'>tid</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-cs'># The last segment might have lesser elements than len</span><span class='hljl-t'>
+
+        </span><span class='hljl-cs'># Broadcast syntax, views used to avoid copying</span><span class='hljl-t'>
+        </span><span class='hljl-nf'>view</span><span class='hljl-p'>(</span><span class='hljl-n'>Y</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>low</span><span class='hljl-oB'>:</span><span class='hljl-n'>high</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>.+=</span><span class='hljl-t'> </span><span class='hljl-n'>A</span><span class='hljl-oB'>.*</span><span class='hljl-nf'>view</span><span class='hljl-p'>(</span><span class='hljl-n'>X</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>low</span><span class='hljl-oB'>:</span><span class='hljl-n'>high</span><span class='hljl-p'>)</span><span class='hljl-t'>
+    </span><span class='hljl-k'>end</span><span class='hljl-t'>
+    </span><span class='hljl-k'>return</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span><span class='hljl-t'>
+
+</span><span class='hljl-n'>v4</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>copy</span><span class='hljl-p'>(</span><span class='hljl-n'>v2_copy</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-nf'>parallel_axpy!</span><span class='hljl-p'>(</span><span class='hljl-n'>α</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>v1</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>v4</span><span class='hljl-p'>)</span><span class='hljl-t'>
+
+</span><span class='hljl-nd'>@show</span><span class='hljl-t'> </span><span class='hljl-n'>v2</span><span class='hljl-t'> </span><span class='hljl-oB'>==</span><span class='hljl-t'> </span><span class='hljl-n'>v4</span>
+</pre>
+
+
+<pre class="output">
+Number of CPU threads &#61; 6
+v2 &#61;&#61; v4 &#61; true
+true
+</pre>
+
+
+<h4>GPU version</h4>
+<p>Given below is the code for GPU</p>
+
+
+<pre class='hljl'>
+<span class='hljl-k'>function</span><span class='hljl-t'> </span><span class='hljl-nf'>gpu_axpy!</span><span class='hljl-p'>(</span><span class='hljl-n'>A</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>X</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>Y</span><span class='hljl-p'>)</span><span class='hljl-t'> 
+    </span><span class='hljl-cs'># set tid to thread rank</span><span class='hljl-t'>
+    </span><span class='hljl-n'>tid</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-p'>(</span><span class='hljl-nf'>blockIdx</span><span class='hljl-p'>()</span><span class='hljl-oB'>.</span><span class='hljl-n'>x</span><span class='hljl-t'> </span><span class='hljl-oB'>-</span><span class='hljl-t'> </span><span class='hljl-ni'>1</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>*</span><span class='hljl-t'> </span><span class='hljl-nf'>blockDim</span><span class='hljl-p'>()</span><span class='hljl-oB'>.</span><span class='hljl-n'>x</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-nf'>threadIdx</span><span class='hljl-p'>()</span><span class='hljl-oB'>.</span><span class='hljl-n'>x</span><span class='hljl-t'>
+    </span><span class='hljl-n'>tid</span><span class='hljl-t'> </span><span class='hljl-oB'>&gt;</span><span class='hljl-t'> </span><span class='hljl-nf'>length</span><span class='hljl-p'>(</span><span class='hljl-n'>Y</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-oB'>&amp;&amp;</span><span class='hljl-t'> </span><span class='hljl-k'>return</span><span class='hljl-t'> 
+    </span><span class='hljl-nd'>@inbounds</span><span class='hljl-t'> </span><span class='hljl-n'>Y</span><span class='hljl-p'>[</span><span class='hljl-n'>tid</span><span class='hljl-p'>]</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>A</span><span class='hljl-oB'>*</span><span class='hljl-n'>X</span><span class='hljl-p'>[</span><span class='hljl-n'>tid</span><span class='hljl-p'>]</span><span class='hljl-t'> </span><span class='hljl-oB'>+</span><span class='hljl-t'> </span><span class='hljl-n'>Y</span><span class='hljl-p'>[</span><span class='hljl-n'>tid</span><span class='hljl-p'>]</span><span class='hljl-t'>
+    </span><span class='hljl-k'>return</span><span class='hljl-t'>
+</span><span class='hljl-k'>end</span><span class='hljl-t'>
+
+</span><span class='hljl-cs'># Transfer array to GPU memory</span><span class='hljl-t'>
+</span><span class='hljl-n'>gpu_v1</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>CuArray</span><span class='hljl-p'>(</span><span class='hljl-n'>v1</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-n'>gpu_v2</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>CuArray</span><span class='hljl-p'>(</span><span class='hljl-n'>v2_copy</span><span class='hljl-p'>)</span><span class='hljl-t'>
+
+</span><span class='hljl-n'>numthreads</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-ni'>256</span><span class='hljl-t'>
+</span><span class='hljl-n'>numblocks</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>cld</span><span class='hljl-p'>(</span><span class='hljl-n'>N</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>numthreads</span><span class='hljl-p'>)</span><span class='hljl-t'>
+
+</span><span class='hljl-nd'>@show</span><span class='hljl-t'> </span><span class='hljl-n'>numthreads</span><span class='hljl-t'>
+</span><span class='hljl-nd'>@show</span><span class='hljl-t'> </span><span class='hljl-n'>numblocks</span><span class='hljl-t'>
+
+</span><span class='hljl-cs'># Launch the gpu_axpy! on the GPU</span><span class='hljl-t'>
+</span><span class='hljl-nd'>@cuda</span><span class='hljl-t'> </span><span class='hljl-n'>threads</span><span class='hljl-oB'>=</span><span class='hljl-n'>numthreads</span><span class='hljl-t'> </span><span class='hljl-n'>blocks</span><span class='hljl-oB'>=</span><span class='hljl-n'>numblocks</span><span class='hljl-t'> </span><span class='hljl-nf'>gpu_axpy!</span><span class='hljl-p'>(</span><span class='hljl-n'>α</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>gpu_v1</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>gpu_v2</span><span class='hljl-p'>)</span><span class='hljl-t'>
+
+</span><span class='hljl-cs'># Copy back to RAM</span><span class='hljl-t'>
+</span><span class='hljl-n'>v4</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-nf'>Array</span><span class='hljl-p'>(</span><span class='hljl-n'>gpu_v2</span><span class='hljl-p'>)</span><span class='hljl-t'>
+
+</span><span class='hljl-cs'># Verify that the answers are the same</span><span class='hljl-t'>
+</span><span class='hljl-nd'>@show</span><span class='hljl-t'> </span><span class='hljl-n'>v2</span><span class='hljl-t'> </span><span class='hljl-oB'>==</span><span class='hljl-t'> </span><span class='hljl-n'>v4</span>
+</pre>
+
+
+<pre class="output">
+numthreads &#61; 256
+numblocks &#61; 2097152
+v2 &#61;&#61; v4 &#61; true
+true
+</pre>
+
+
+<p>Compared to the CPU code there are a number of differences:</p>
+<h5>1&#41; Thread Indexing</h5>
+<p>The multithreaded CPU code used <code>threadid&#40;&#41;</code> to get the current thread&#39;s rank whereas on the GPU a complicated expression <code>tid &#61; &#40;blockIdx&#40;&#41;.x - 1&#41; * blockDim&#40;&#41;.x &#43; threadIdx&#40;&#41;.x</code> computed rank. Furthermore, we are using two distinct terms, <code>blocks</code> and <code>threads</code> coupled with <code>idx</code>&#40;index&#41; and <code>Dim</code> &#40;dimension&#41;.</p>
+<h5>2&#41; SIMT architecture</h5>
+<p>The multithreaded CPU code divided the array up into a handful of pieces equal to the number of processors. A modern consumer CPU has a handful of cores&#40;4 - 8&#41;, hence each thread still works on a relatively large array whereas the GPU processes one element per thread. While both demonstrate parallelism their scales differ vastly.</p>
+<p><a href="https://hpc.llnl.gov/tutorials/introduction-parallel-computing/flynns-classical-taxonomy">Flynn&#39;s taxonomy</a> is a popular way to classify parallel computer architectures.</p>
+<table><tr><th>x</th><th>single data</th><th>multiple data</th></tr><tr><td>single instruction</td><td>SISD</td><td>SIMD</td></tr><tr><td>multiple instruction</td><td>MISD</td><td>MIMD</td></tr></table>
+<ul>
+<li><p>SISD&#40;single instruction single data&#41; is the classical uniprocessor model. A single instruction stream executes, acting on a single data element at a time.</p>
+</li>
+<li><p>SIMD&#40;single instruction multiple data&#41; incorporates a level of parallelism by having a single instruction stream acting on multiple data elements at a time. An example of this is vectorized CPU instructions which use large registers containing multiple data elements. Instructions that work with these large vector registers effectively work on multiple data elements in parallel with a single instruction by utilizing special hardware.</p>
+</li>
+</ul>
+<p><img src="../assets/simd.jpg" alt="SIMD AVX-2 4x64i addition" /></p>
+<ul>
+<li><p>MISD &#40;multiple instruction single data&#41; is currently only a theoretical model and no commercial machine has been built which uses it.</p>
+</li>
+<li><p>MIMD &#40;multiple instruction multiple data&#41; is able to manage multiple instruction streams and acts on multiple data elements at the same time. The CPU multithreading model belongs to it. Each processor can work independently using a different instruction stream acting on different data as required.</p>
+</li>
+</ul>
+<p>To describe CUDA&#39;s parallel model NVIDIA coined the term SIMT &#40;single instruction multiple threads&#41; as an extention to SIMD classification. Just like a SIMD vector packs a fixed number of data elements in a wide register, a GPU packs a fixed number of threads in a single warp. Currently NVIDIA packs 32 threads in a single warp and AMD cards pack 64 threads. For more details refer to NVIDIA&#39;s docs <a href="https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#hardware-implementation">here</a>.</p>
+<h5>3&#41; Memory</h5>
+<p>CPU&#39;s memory &#40;RAM&#41; and GPU memory are distinct and is called <em>host</em> &#40;CPU&#41; and <em>device</em> &#40;GPU&#41; memory respectively. In Julia we need to explicitly transfer memory to and from GPU memory. The reason for this is that copying memory is an expensive operation with high latency. GPU&#39;s use PCIe lanes to transfer memory to and from RAM. Poor usage of memory transfers is detrimental to performace and can easily negate all benefits of using a GPU.</p>
+<p>Device code referencing CPU memory will result in errors. Host code referencing device memory is produces a warning.</p>
+
+<pre class='hljl'>
+<span class='hljl-nB'>julia&gt; </span><span class='hljl-n'>arr</span><span class='hljl-t'> </span><span class='hljl-oB'>=</span><span class='hljl-t'> </span><span class='hljl-n'>CUDA</span><span class='hljl-oB'>.</span><span class='hljl-nf'>rand</span><span class='hljl-p'>(</span><span class='hljl-ni'>10</span><span class='hljl-p'>);</span><span class='hljl-t'>
+
+</span><span class='hljl-nB'>julia&gt; </span><span class='hljl-n'>arr</span><span class='hljl-p'>[</span><span class='hljl-ni'>1</span><span class='hljl-p'>]</span><span class='hljl-t'>
+0.9990255f0</span>
+</pre>
+
+<p>To disallow scalar operations altogether use the <code>CUDA.allowscalar&#40;&#41;</code> function.</p>
+
+
+<pre class='hljl'>
+<span class='hljl-n'>CUDA</span><span class='hljl-oB'>.</span><span class='hljl-nf'>allowscalar</span><span class='hljl-p'>(</span><span class='hljl-kc'>false</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-n'>arr</span><span class='hljl-p'>[</span><span class='hljl-ni'>1</span><span class='hljl-p'>]</span>
+</pre>
+
+
+<pre class="julia-error">
+ERROR: scalar getindex is disallowed
+</pre>
+
+
+<p>To temporarily allow it in an experssion use the <code>@allowscalar</code> macro. However it is suggested that once your application executes correctly on the GPU, you should disallow scalar indexing and use GPU-friendly array operations instead. Accessing GPU memory in a scalar fashion is extremely detrimental to performance. </p>
+
+
+<pre class='hljl'>
+<span class='hljl-n'>CUDA</span><span class='hljl-oB'>.</span><span class='hljl-nd'>@allowscalar</span><span class='hljl-t'> </span><span class='hljl-n'>arr</span><span class='hljl-p'>[</span><span class='hljl-ni'>1</span><span class='hljl-p'>]</span>
+</pre>
+
+
+<pre class="output">
+0.9990255f0
+</pre>
+
+
+<p>A GPU also has different types of memory such as global memory, texture memory, constant memory which will be discussed later. In general what we call <em>global memory</em> is the GPUs DRAM which can be accessed by all threads and is what will be used most often. Memory transfers between the host and device involve the GPUs global memory.</p>
+<p>You can check your GPU&#39;s memory using <code>CUDA.available_memory&#40;&#41;</code> and <code>CUDA.total_memory&#40;&#41;</code> which returns the number of bytes.</p>
+
+
+<pre class='hljl'>
+<span class='hljl-nd'>@show</span><span class='hljl-t'> </span><span class='hljl-n'>CUDA</span><span class='hljl-oB'>.</span><span class='hljl-n'>available_memory</span><span class='hljl-t'> 
+</span><span class='hljl-nd'>@show</span><span class='hljl-t'> </span><span class='hljl-n'>CUDA</span><span class='hljl-oB'>.</span><span class='hljl-nf'>total_memory</span><span class='hljl-p'>();</span>
+</pre>
+
+
+<pre class="output">
+CUDA.available_memory &#61; CUDA.available_memory
+CUDA.total_memory&#40;&#41; &#61; 6370426880
+</pre>
+
+
+<h5>4&#41; Kernel</h5>
+<p>When we used the <code>@cuda</code> macro, it compiled the <code>gpu_saxpy&#33;</code> function for execution on the GPU. A GPU has it&#39;s own <a href="https://simple.wikipedia.org/wiki/Instruction_set">instruction set</a> just like a CPU. The compiled function is called the <strong>kernel</strong> and is sent to the GPU for execution. Once sent we can either wait for the GPU to complete execution or work on something different while it is executing. This can be done using the <code>blocking</code> option.</p>
+<p>Although CUDA&#39;s native instruction set is proprietary there are other ways to inspect code at various stages of compilation. The <a href="https://juliagpu.gitlab.io/CUDA.jl/api/compiler/#Reflection">reflection page</a> of the documentation should be consulted.</p>
+<p>As an example consider <code>PTX</code> which resembles low level RISC-ISA like code. PTX is commonly used to inspect code and NVIDIA&#39;s <a href="https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#introduction">PTX docs</a> explains it well.</p>
+
+
+<pre class='hljl'>
+<span class='hljl-nd'>@device_code_ptx</span><span class='hljl-t'> </span><span class='hljl-nd'>@cuda</span><span class='hljl-t'> </span><span class='hljl-n'>threads</span><span class='hljl-oB'>=</span><span class='hljl-n'>numthreads</span><span class='hljl-t'> </span><span class='hljl-n'>blocks</span><span class='hljl-oB'>=</span><span class='hljl-n'>numblocks</span><span class='hljl-t'> </span><span class='hljl-nf'>gpu_axpy!</span><span class='hljl-p'>(</span><span class='hljl-n'>α</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>gpu_v1</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>gpu_v2</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+// PTX CompilerJob of kernel gpu_axpy&#33;&#40;Float64, CUDA.CuDeviceArray&#123;Float32,
+1,1&#125;, CUDA.CuDeviceArray&#123;Float32,1,1&#125;&#41; for sm_61
+
+//
+// Generated by LLVM NVPTX Back-End
+//
+
+.version 6.0
+.target sm_61
+.address_size 64
+
+	// .globl	_Z23julia_gpu_axpyNOT__46087Float6413CuDeviceArrayI7Float32Li1EL
+i1EES0_IS1_Li1ELi1EE // -- Begin function _Z23julia_gpu_axpyNOT__46087Float
+6413CuDeviceArrayI7Float32Li1ELi1EES0_IS1_Li1ELi1EE
+.weak .global .align 8 .u64 exception_flag;
+                                        // @_Z23julia_gpu_axpyNOT__46087Flo
+at6413CuDeviceArrayI7Float32Li1ELi1EES0_IS1_Li1ELi1EE
+.visible .entry _Z23julia_gpu_axpyNOT__46087Float6413CuDeviceArrayI7Float32
+Li1ELi1EES0_IS1_Li1ELi1EE&#40;
+	.param .f64 _Z23julia_gpu_axpyNOT__46087Float6413CuDeviceArrayI7Float32Li1
+ELi1EES0_IS1_Li1ELi1EE_param_0,
+	.param .align 8 .b8 _Z23julia_gpu_axpyNOT__46087Float6413CuDeviceArrayI7Fl
+oat32Li1ELi1EES0_IS1_Li1ELi1EE_param_1&#91;16&#93;,
+	.param .align 8 .b8 _Z23julia_gpu_axpyNOT__46087Float6413CuDeviceArrayI7Fl
+oat32Li1ELi1EES0_IS1_Li1ELi1EE_param_2&#91;16&#93;
+&#41;
+&#123;
+	.reg .pred 	&#37;p&lt;2&gt;;
+	.reg .f32 	&#37;f&lt;4&gt;;
+	.reg .b32 	&#37;r&lt;5&gt;;
+	.reg .f64 	&#37;fd&lt;5&gt;;
+	.reg .b64 	&#37;rd&lt;15&gt;;
+
+// &#37;bb.0:                               // &#37;top
+	mov.b64 	&#37;rd5, _Z23julia_gpu_axpyNOT__46087Float6413CuDeviceArrayI7Float32
+Li1ELi1EES0_IS1_Li1ELi1EE_param_2;
+	ld.param.u64 	&#37;rd6, &#91;&#37;rd5&#93;;
+	mov.u32 	&#37;r2, &#37;ctaid.x;
+	mov.u32 	&#37;r3, &#37;ntid.x;
+	mul.wide.u32 	&#37;rd3, &#37;r3, &#37;r2;
+	mov.u32 	&#37;r1, &#37;tid.x;
+	add.s32 	&#37;r4, &#37;r1, 1;
+	cvt.u64.u32 	&#37;rd7, &#37;r4;
+	add.s64 	&#37;rd8, &#37;rd3, &#37;rd7;
+	setp.ge.s64 	&#37;p1, &#37;rd6, &#37;rd8;
+	@&#37;p1 bra 	LBB0_2;
+	bra.uni 	LBB0_1;
+LBB0_2:                                 // &#37;L46
+	ld.param.f64 	&#37;fd1, &#91;_Z23julia_gpu_axpyNOT__46087Float6413CuDeviceArrayI7F
+loat32Li1ELi1EES0_IS1_Li1ELi1EE_param_0&#93;;
+	mov.b64 	&#37;rd4, _Z23julia_gpu_axpyNOT__46087Float6413CuDeviceArrayI7Float32
+Li1ELi1EES0_IS1_Li1ELi1EE_param_1;
+	ld.param.u64 	&#37;rd1, &#91;&#37;rd5&#43;8&#93;;
+	ld.param.u64 	&#37;rd2, &#91;&#37;rd4&#43;8&#93;;
+	cvt.u64.u32 	&#37;rd9, &#37;r1;
+	add.s64 	&#37;rd10, &#37;rd3, &#37;rd9;
+	shl.b64 	&#37;rd11, &#37;rd10, 2;
+	add.s64 	&#37;rd12, &#37;rd11, -4;
+	add.s64 	&#37;rd13, &#37;rd2, &#37;rd12;
+	ld.global.f32 	&#37;f1, &#91;&#37;rd13&#43;4&#93;;
+	cvt.f64.f32 	&#37;fd2, &#37;f1;
+	add.s64 	&#37;rd14, &#37;rd1, &#37;rd12;
+	ld.global.f32 	&#37;f2, &#91;&#37;rd14&#43;4&#93;;
+	cvt.f64.f32 	&#37;fd3, &#37;f2;
+	fma.rn.f64 	&#37;fd4, &#37;fd2, &#37;fd1, &#37;fd3;
+	cvt.rn.f32.f64 	&#37;f3, &#37;fd4;
+	st.global.f32 	&#91;&#37;rd14&#43;4&#93;, &#37;f3;
+LBB0_1:                                 // &#37;L31
+	ret;
+                                        // -- End function
+&#125;
+</pre>
+
+
+<h4>Measuring Time</h4>
+<p>Since the primary inspiration for parallel programming is performance it is important to measure it effectively. Because the CPU and GPU can execute asynchronously there some nuance in their profiling. When we launch a CUDA kernel using <code>@cuda</code> after the kernel is launched, control is immediately returned back to the CPU. The CPU can continue executing other code until it&#39;s forced to synchronize with the GPU. Certain events like memory transfers and kernel launches can force synchronization. While measuring time and benchmarking we need to force synchronization otherwise we are measuring the time to launch kernels rather than the time it took to execute on the GPU.</p>
+<p>Two simple ways to force synchronization are to use the <code>CUDA.@sync ex</code> where the CPU is blocked until <code>ex</code> finishes execution. The other is to use <code>CUDA.@time</code> which synchronizes before and after <code>ex</code>. Using <code>CUDA.@sync</code> is advisable when using a benchmarking package like <a href="https://github.com/JuliaCI/BenchmarkTools.jl">BenchmarkTools.jl</a>.</p>
+<p>Another way is to use <a href="https://juliagpu.gitlab.io/CUDA.jl/lib/driver/#Event-Management">CUDA Events</a> which can be used in scenarios where a number of events and their statistics are to be collected.</p>
+<p>Finally, having a look at NVIDIA&#39;s benchmarking tools like Nsight Systems and Nsight Compute can be very helpful in understanding an applications timeline and individual kernel performance. Both of these will be discussed in future tutorials.</p>
+
+
+<pre class='hljl'>
+<span class='hljl-nd'>@time</span><span class='hljl-t'> </span><span class='hljl-nf'>axpy!</span><span class='hljl-p'>(</span><span class='hljl-n'>α</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>v1</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>v2</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-nd'>@time</span><span class='hljl-t'> </span><span class='hljl-nf'>parallel_axpy!</span><span class='hljl-p'>(</span><span class='hljl-n'>α</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>v1</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>v2</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-nd'>@time</span><span class='hljl-t'> </span><span class='hljl-nd'>@cuda</span><span class='hljl-t'> </span><span class='hljl-n'>threads</span><span class='hljl-oB'>=</span><span class='hljl-n'>numthreads</span><span class='hljl-t'> </span><span class='hljl-n'>blocks</span><span class='hljl-oB'>=</span><span class='hljl-n'>numblocks</span><span class='hljl-t'> </span><span class='hljl-nf'>gpu_axpy!</span><span class='hljl-p'>(</span><span class='hljl-n'>α</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>gpu_v1</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>gpu_v2</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-nf'>sleep</span><span class='hljl-p'>(</span><span class='hljl-nfB'>0.1</span><span class='hljl-p'>)</span><span class='hljl-t'> </span><span class='hljl-cs'># Wait for the previous function to finish</span><span class='hljl-t'>
+</span><span class='hljl-nd'>@time</span><span class='hljl-t'> </span><span class='hljl-n'>CUDA</span><span class='hljl-oB'>.</span><span class='hljl-nd'>@sync</span><span class='hljl-t'> </span><span class='hljl-nd'>@cuda</span><span class='hljl-t'> </span><span class='hljl-n'>threads</span><span class='hljl-oB'>=</span><span class='hljl-n'>numthreads</span><span class='hljl-t'> </span><span class='hljl-n'>blocks</span><span class='hljl-oB'>=</span><span class='hljl-n'>numblocks</span><span class='hljl-t'> </span><span class='hljl-nf'>gpu_axpy!</span><span class='hljl-p'>(</span><span class='hljl-n'>α</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>gpu_v1</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>gpu_v2</span><span class='hljl-p'>)</span><span class='hljl-t'>
+</span><span class='hljl-n'>CUDA</span><span class='hljl-oB'>.</span><span class='hljl-nd'>@time</span><span class='hljl-t'> </span><span class='hljl-nd'>@cuda</span><span class='hljl-t'> </span><span class='hljl-n'>threads</span><span class='hljl-oB'>=</span><span class='hljl-n'>numthreads</span><span class='hljl-t'> </span><span class='hljl-n'>blocks</span><span class='hljl-oB'>=</span><span class='hljl-n'>numblocks</span><span class='hljl-t'> </span><span class='hljl-nf'>gpu_axpy!</span><span class='hljl-p'>(</span><span class='hljl-n'>α</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>gpu_v1</span><span class='hljl-p'>,</span><span class='hljl-t'> </span><span class='hljl-n'>gpu_v2</span><span class='hljl-p'>)</span>
+</pre>
+
+
+<pre class="output">
+0.279666 seconds
+  0.239396 seconds &#40;33 allocations: 4.531 KiB&#41;
+  0.000042 seconds &#40;43 allocations: 1.625 KiB&#41;
+  0.045288 seconds &#40;63 allocations: 2.281 KiB&#41;
+  0.044744 seconds &#40;54 CPU allocations: 1.812 KiB&#41;
+</pre>
+
+
+<p>Notice how the time with <code>@time @cuda</code> is much lesser than the <code>@time CUDA.@sync</code> and <code>CUDA.@time</code> counterparts.</p>
+<h2>GPU Architecture</h2>
+<p>A GPU is made up of an array of <em>Streaming Multi-Processors</em>&#40;SM&#41; connected to <em>Global Memory</em>. Each streaming multiprocessor consists of warp schedulers, a register file and functional units like single/double precision ALU, Load-Store units,.etc to execute multiple warps concurrently. Effectively hundreds of threads can be executed concurrently on a single SM. Performance of a GPU scales with the number of SM&#39;s it has.</p>
+<p><img src="../assets/GPU_diagram.png" alt="GPU Architecture" /></p>
+<p><img src="../assets/SM_diagram.png" alt="SM Architecture" /></p>
+<p>When a kernel is launched on a GPU we also specify a grid configuration using  the <code>blocks</code> and <code>threads</code> arguments. A grid is composed of &quot;thread blocks&quot;: a logical collection of threads. The <code>blocks</code> argument defines the block configuration for the grid and the <code>threads</code> argument defines the thread configuration for the thread block.</p>
+<p>The GPU schedules each thread block to any available SM with sufficient resources. Blocks can be processed in <strong>any</strong> order by the GPU. Multiple thread blocks may execute on a single SM if sufficient resources are available. As thread blocks complete execution other thread blocks take their place.</p>
+<p>Each thread block contains a <em>cooperative thread array</em>&#40;CTA&#41; which is specified by the <code>threads</code> argument. Threads which belong to the same CTA can easily communicate and coordinate with each other because they belong to the same SM. They also have access to a shared memory which is much faster than global memory. The maximum size of a CTA is currently 1024 on NVIDIA hardware.</p>
+<p>A small summary of some of the new terms we came across.</p>
+<ul>
+<li><p><em>thread warp</em>: A set of threads with a fixed size&#40;32&#41;. Instructions in a warp are executed together.</p>
+</li>
+<li><p><em>thread block</em>: A logical collection of threads which can communicate and coordinate easily.</p>
+</li>
+<li><p><em>grid</em>: A logical collection of thread blocks.</p>
+</li>
+</ul>
+<h4>Resources for learning</h4>
+<p>Most learning material uses the C/C&#43;&#43; flavor of CUDA. However, there aren&#39;t any significant differences and most material can easily be translated from C/C&#43;&#43; to Julia. The main objective is to understand the programming model and how a GPU works rather than the syntax.</p>
+<ol>
+<li><p><a href="https://docs.nvidia.com/cuda/archive/9.1/pdf/CUDA_C_Programming_Guide.pdf">CUDA C Programming Guide</a>: A reference to the CUDA platform with details on hardware and CUDA C/C&#43;&#43; features. </p>
+</li>
+<li><p><a href="https://developer.nvidia.com/blog/">NVIDIA Developer Blog</a>: Contains many educational blogposts such as <a href="https://developer.nvidia.com/blog/faster-parallel-reductions-kepler/">reduction</a>, <a href="https://developer.nvidia.com/blog/efficient-matrix-transpose-cuda-cc/">Matrix Multiply</a>,.etc</p>
+</li>
+<li><p><a href="https://www.elsevier.com/books/programming-massively-parallel-processors/kirk/978-0-12-811986-0">Programming Massively Parallel Processors: A Hands-on Approach &#40;David Kirk and Wen-mei Hwu&#41;</a>: A formal textbook on parallel programming and GPU programming using CUDA.</p>
+</li>
+<li><p>Computer Architecture: A quantitative approach &#40;6th Edition, Chapter 4&#41;: Exploring the hardware side of parallel technologies like vector architectures, vectorised SIMD instructions and GPU&#39;s.</p>
+</li>
+</ol>
+
+
+        <HR/>
+        <div class="footer">
+          <p>
+            Published from <a href="01-introduction_to_gpu_programming.jmd">01-introduction_to_gpu_programming.jmd</a>
+            using <a href="http://github.com/JunoLab/Weave.jl">Weave.jl</a> v0.10.6 on 2020-11-23.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</BODY>
+
+</HTML>
