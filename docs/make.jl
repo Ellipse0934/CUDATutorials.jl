@@ -1,10 +1,12 @@
 using Documenter, Literate
+using CUDATutorials
+
 import CUDATutorials.make_dir
 
 function generate_docs()
-    outpath = normpath(joinpath(@__DIR__, "src"))
+    outpath = normpath(joinpath(pkgdir(CUDATutorials), "docs", "src"))
     make_dir(outpath)
-    tutorial_path = normpath(joinpath(@__DIR__, "..", "src", "tutorials"))
+    tutorial_path = normpath(joinpath(pkgdir(CUDATutorials), "src", "tutorials"))
     for (root, dirs, files) in walkdir(tutorial_path)
         for dir in dirs
             make_dir(joinpath(outpath, dir))
