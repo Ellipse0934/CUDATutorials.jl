@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Shared Memory · CUDATutorials.jl</title><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit">CUDATutorials.jl</span></div><form class="docs-search" action="../search.html"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../index.html">Home</a></li><li><span class="tocitem">Introduction</span><ul><li><a class="tocitem" href="01-Introduction.html">Introduction</a></li><li><a class="tocitem" href="02-Mandelbrot_Set.html">Mandelbrot Set</a></li><li class="is-active"><a class="tocitem" href="03-Shared_Memory.html">Shared Memory</a><ul class="internal"><li><a class="tocitem" href="#Matrix-Transpose"><span>Matrix Transpose</span></a></li><li><a class="tocitem" href="#Coalescing-Memory-Access"><span>Coalescing Memory Access</span></a></li></ul></li><li><a class="tocitem" href="04-Reduction.html">Reduction</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Introduction</a></li><li class="is-active"><a href="03-Shared_Memory.html">Shared Memory</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href="03-Shared_Memory.html">Shared Memory</a></li></ul></nav><div class="docs-right"><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Shared-memory"><a class="docs-heading-anchor" href="#Shared-memory">Shared memory</a><a id="Shared-memory-1"></a><a class="docs-heading-anchor-permalink" href="#Shared-memory" title="Permalink"></a></h1><p><strong>Shared memory</strong> is the memory in a SM(symmetric multiprocessor) which is accessable to all threads running on the SM. It is much faster than global memory being much closer in proximity. The amount of shared memory available depends on the compute capability of the GPU. Increasing the amount of shared memory may reduce occupancy.</p><p><code>sync_threads()</code> is a function which adds a <a href="https://en.wikipedia.org/wiki/Barrier_(computer_science)">barrier</a> for all threads in a thread block. A <strong>barrier</strong> ensures that all threads which belong to it stall once they reach it until all other threads reach the barrier. This is commonly used as a synchronization mechanism to eliminate race conditions.</p><h3 id="Array-Reversal"><a class="docs-heading-anchor" href="#Array-Reversal">Array Reversal</a><a id="Array-Reversal-1"></a><a class="docs-heading-anchor-permalink" href="#Array-Reversal" title="Permalink"></a></h3><p>Our job is to reverse an array, i.e <span>$[1, 2, 3] \rightarrow [3, 2, 1]$</span>.</p><pre><code class="language-julia">using CUDA, BenchmarkTools
+
+function reverse(input, output = similar(input))
+    len = length(input)
+    for i = 1:cld(len,2)
+        output[i], output[len - i + 1] = input[len - i + 1], input[i]
+    end
+    output
+end</code></pre><pre><code class="language-none">reverse (generic function with 2 methods)</code></pre><pre><code class="language-julia">reverse([1, 2, 3, 4, 5])</code></pre><pre><code class="language-none">5-element Array{Int64,1}:
+ 5
+ 4
+ 3
+ 2
+ 1</code></pre><pre><code class="language-julia">function gpu_reverse(input, output)
+    tid = threadIdx().x
+    len = length(input)
+    if tid &lt;= cld(len, 2)
+        output[tid], output[len - tid + 1] = input[len - tid + 1], input[tid]
+    end
+    return
+end</code></pre><pre><code class="language-none">gpu_reverse (generic function with 1 method)</code></pre><pre><code class="language-julia">A = CuArray(collect(1:5))
+B = similar(A)
+@cuda blocks=1 threads=length(A) gpu_reverse(A, B)
+B</code></pre><pre><code class="language-none">5-element CUDA.CuArray{Int64,1}:
+ 5
+ 4
+ 3
+ 2
+ 1</code></pre><p>There are two ways to declare shared memory: Statically and Dynamically. We declaring it statically when the amount we need is the same amount for all kernel launches and known when writing the kernel. In the other case we declare it dynamically and specify it while launching with the <code>@cuda</code> macro using the <code>shmem</code> argument.</p><pre><code class="language-julia">@doc @cuStaticSharedMem</code></pre><pre><code class="language-none">@cuStaticSharedMem(T::Type, dims) -&gt; CuDeviceArray{T,AS.Shared}</code></pre><p>Get an array of type <code>T</code> and dimensions <code>dims</code> (either an integer length or tuple shape) pointing to a statically-allocated piece of shared memory. The type should be statically inferable and the dimensions should be constant, or an error will be thrown and the generator function will be called dynamically.</p><pre><code class="language-julia">function gpu_stshmemreverse(input, output)
+    # Maximum size of array is 64
+    shmem = @cuStaticSharedMem(eltype(output), 64)
+    tid = threadIdx().x
+    len = length(input)
+    shmem[tid] = input[len - tid + 1]
+    output[tid] = shmem[tid]
+    return
+end</code></pre><pre><code class="language-none">gpu_stshmemreverse (generic function with 1 method)</code></pre><pre><code class="language-julia">A = CuArray(collect(1:32))
+B = similar(A)
+@cuda blocks=1 threads=length(A) gpu_stshmemreverse(A, B)
+print(B)</code></pre><pre><code class="language-none">[32, 31, 30, 29, 28, 27, 26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1]</code></pre><p>When the amount of shared memory required isn&#39;t known while writing the kernel overallocating is not a good idea because that may potentially reduce our occupancy. As an SM&#39;s resource usage increases it&#39;s occupancy goes down. Hence, it&#39;s best to use dynamically allocated memory when memory usage can only be known at launch time.</p><pre><code class="language-julia">@doc @cuDynamicSharedMem</code></pre><pre><code class="language-none">@cuDynamicSharedMem(T::Type, dims, offset::Integer=0) -&gt; CuDeviceArray{T,AS.Shared}</code></pre><p>Get an array of type <code>T</code> and dimensions <code>dims</code> (either an integer length or tuple shape) pointing to a dynamically-allocated piece of shared memory. The type should be statically inferable or an error will be thrown and the generator function will be called dynamically.</p><p>Note that the amount of dynamic shared memory needs to specified when launching the kernel.</p><p>Optionally, an offset parameter indicating how many bytes to add to the base shared memory pointer can be specified. This is useful when dealing with a heterogeneous buffer of dynamic shared memory; in the case of a homogeneous multi-part buffer it is preferred to use <code>view</code>.</p><pre><code class="language-julia">function gpu_dyshmemreverse(input, output)
+    shmem = @cuDynamicSharedMem(eltype(output), (length(output),))
+    tid = threadIdx().x
+    len = length(input)
+    shmem[tid] = input[len - tid + 1]
+    output[tid] = shmem[tid]
+    return
+end</code></pre><pre><code class="language-none">gpu_dyshmemreverse (generic function with 1 method)</code></pre><pre><code class="language-julia">C = CuArray(collect(1:32))
+D = similar(C)
+@cuda blocks=1 threads=length(C) shmem=length(C) gpu_dyshmemreverse(C, D)
+print(D)</code></pre><pre><code class="language-none">[32, 31, 30, 29, 28, 27, 26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1]</code></pre><h2 id="Matrix-Transpose"><a class="docs-heading-anchor" href="#Matrix-Transpose">Matrix Transpose</a><a id="Matrix-Transpose-1"></a><a class="docs-heading-anchor-permalink" href="#Matrix-Transpose" title="Permalink"></a></h2><p>Matrix transpose is an operation which flips a matrix along its main diagonal.</p><p><img src="../assets/transpose.png" alt="transpose"/></p><pre><code class="language-julia">A = reshape(1:9, (3, 3))</code></pre><pre><code class="language-none">3×3 reshape(::UnitRange{Int64}, 3, 3) with eltype Int64:
+ 1  4  7
+ 2  5  8
+ 3  6  9</code></pre><pre><code class="language-julia">A&#39;</code></pre><pre><code class="language-none">3×3 LinearAlgebra.Adjoint{Int64,Base.ReshapedArray{Int64,2,UnitRange{Int64},Tuple{}}}:
+ 1  2  3
+ 4  5  6
+ 7  8  9</code></pre><pre><code class="language-julia">A&#39;&#39; ## (A&#39;)&#39;</code></pre><pre><code class="language-none">3×3 reshape(::UnitRange{Int64}, 3, 3) with eltype Int64:
+ 1  4  7
+ 2  5  8
+ 3  6  9</code></pre><p>Ignore the types that Julia returns. <code>LinearAlgebra.Adjoint</code> is a wrapper that uses <a href="https://en.wikipedia.org/wiki/Lazy_evaluation">lazy evaluation</a> to compute the result as required.</p><pre><code class="language-julia"># CPU implementation
+function cpu_transpose(input, output = similar(input, (size(input, 2), size(input, 1))))
+    # the dimensions of the resultant matrix are reversed
+    for index = CartesianIndices(input)
+            output[index[2], index[1]] = input[index]
+    end
+    output
+end</code></pre><pre><code class="language-none">cpu_transpose (generic function with 2 methods)</code></pre><pre><code class="language-julia">A = reshape(1:20, (4, 5))</code></pre><pre><code class="language-none">4×5 reshape(::UnitRange{Int64}, 4, 5) with eltype Int64:
+ 1  5   9  13  17
+ 2  6  10  14  18
+ 3  7  11  15  19
+ 4  8  12  16  20</code></pre><pre><code class="language-julia">cpu_transpose(A)</code></pre><pre><code class="language-none">5×4 Array{Int64,2}:
+  1   2   3   4
+  5   6   7   8
+  9  10  11  12
+ 13  14  15  16
+ 17  18  19  20</code></pre><p>Before we begin working on the GPU consider the following code.</p><pre><code class="language-julia">A = CuArray(reshape(1.:9, (3, 3)))
+
+println(&quot;A =&gt; &quot;, pointer(A))
+CUDA.@allowscalar begin
+    for i in eachindex(A)
+        println(i, &quot; &quot;, A[i], &quot; &quot;, pointer(A, i))
+    end
+end</code></pre><pre><code class="language-none">A =&gt; CUDA.CuPtr{Float64}(0x00007f7066831a00)
+1 1.0 CUDA.CuPtr{Float64}(0x00007f7066831a00)
+2 2.0 CUDA.CuPtr{Float64}(0x00007f7066831a08)
+3 3.0 CUDA.CuPtr{Float64}(0x00007f7066831a10)
+4 4.0 CUDA.CuPtr{Float64}(0x00007f7066831a18)
+5 5.0 CUDA.CuPtr{Float64}(0x00007f7066831a20)
+6 6.0 CUDA.CuPtr{Float64}(0x00007f7066831a28)
+7 7.0 CUDA.CuPtr{Float64}(0x00007f7066831a30)
+8 8.0 CUDA.CuPtr{Float64}(0x00007f7066831a38)
+9 9.0 CUDA.CuPtr{Float64}(0x00007f7066831a40)
+</code></pre><p>Notice how consecutive elements are in the same column rather than the same row. This is because Julia stores its multidimensional arrays in a column major order like Fortran. In contrast to C/C++ which are row-major languages. The reason for making Julia&#39;s arrays column major is because a lot of linear algebra libraries are column major to begin with (https://discourse.julialang.org/t/why-column-major/24374/3).</p><pre><code class="language-julia"># To index our 2-D array we will split the input into tiles of 32x32 elements.
+# Each thread block will launch with 32x8 = 256 threads
+# Each thread will work on 4 elements.
+const TILE_DIM = 32
+
+function gpu_transpose_kernel(input, output)
+    tile_index = ((blockIdx().y, blockIdx().x) .- 1) .* TILE_DIM
+
+    # each thread manages 4 rows (8x4 = 32)
+    for i in 1:4
+        thread_index = (threadIdx().y + (i - 1)*8, threadIdx().x)
+        index = CartesianIndex(tile_index .+ thread_index)
+        (index[1] &gt; size(input, 1) || index[2] &gt; size(input, 2)) &amp;&amp; continue
+        @inbounds output[index] = input[index[2], index[1]]
+    end
+
+    return
+end</code></pre><pre><code class="language-none">gpu_transpose_kernel (generic function with 1 method)</code></pre><pre><code class="language-julia">function gpu_transpose(input, output = similar(input, (size(input, 2), size(input, 1))))
+    threads = (32, 8)
+    blocks = cld.(size(input), (32, 32))
+    @cuda blocks=blocks threads=threads gpu_transpose_kernel(input, output)
+    output
+end</code></pre><pre><code class="language-none">gpu_transpose (generic function with 2 methods)</code></pre><pre><code class="language-julia">A = CuArray(reshape(1f0:1089, 33, 33))</code></pre><pre><code class="language-none">33×33 CUDA.CuArray{Float32,2}:
+  1.0  34.0  67.0  100.0  133.0  166.0  199.0  232.0  265.0  298.0  331.0  364.0  397.0  430.0  463.0  496.0  529.0  562.0  595.0  628.0  661.0  694.0  727.0  760.0  793.0  826.0  859.0  892.0  925.0  958.0   991.0  1024.0  1057.0
+  2.0  35.0  68.0  101.0  134.0  167.0  200.0  233.0  266.0  299.0  332.0  365.0  398.0  431.0  464.0  497.0  530.0  563.0  596.0  629.0  662.0  695.0  728.0  761.0  794.0  827.0  860.0  893.0  926.0  959.0   992.0  1025.0  1058.0
+  3.0  36.0  69.0  102.0  135.0  168.0  201.0  234.0  267.0  300.0  333.0  366.0  399.0  432.0  465.0  498.0  531.0  564.0  597.0  630.0  663.0  696.0  729.0  762.0  795.0  828.0  861.0  894.0  927.0  960.0   993.0  1026.0  1059.0
+  4.0  37.0  70.0  103.0  136.0  169.0  202.0  235.0  268.0  301.0  334.0  367.0  400.0  433.0  466.0  499.0  532.0  565.0  598.0  631.0  664.0  697.0  730.0  763.0  796.0  829.0  862.0  895.0  928.0  961.0   994.0  1027.0  1060.0
+  5.0  38.0  71.0  104.0  137.0  170.0  203.0  236.0  269.0  302.0  335.0  368.0  401.0  434.0  467.0  500.0  533.0  566.0  599.0  632.0  665.0  698.0  731.0  764.0  797.0  830.0  863.0  896.0  929.0  962.0   995.0  1028.0  1061.0
+  6.0  39.0  72.0  105.0  138.0  171.0  204.0  237.0  270.0  303.0  336.0  369.0  402.0  435.0  468.0  501.0  534.0  567.0  600.0  633.0  666.0  699.0  732.0  765.0  798.0  831.0  864.0  897.0  930.0  963.0   996.0  1029.0  1062.0
+  7.0  40.0  73.0  106.0  139.0  172.0  205.0  238.0  271.0  304.0  337.0  370.0  403.0  436.0  469.0  502.0  535.0  568.0  601.0  634.0  667.0  700.0  733.0  766.0  799.0  832.0  865.0  898.0  931.0  964.0   997.0  1030.0  1063.0
+  8.0  41.0  74.0  107.0  140.0  173.0  206.0  239.0  272.0  305.0  338.0  371.0  404.0  437.0  470.0  503.0  536.0  569.0  602.0  635.0  668.0  701.0  734.0  767.0  800.0  833.0  866.0  899.0  932.0  965.0   998.0  1031.0  1064.0
+  9.0  42.0  75.0  108.0  141.0  174.0  207.0  240.0  273.0  306.0  339.0  372.0  405.0  438.0  471.0  504.0  537.0  570.0  603.0  636.0  669.0  702.0  735.0  768.0  801.0  834.0  867.0  900.0  933.0  966.0   999.0  1032.0  1065.0
+ 10.0  43.0  76.0  109.0  142.0  175.0  208.0  241.0  274.0  307.0  340.0  373.0  406.0  439.0  472.0  505.0  538.0  571.0  604.0  637.0  670.0  703.0  736.0  769.0  802.0  835.0  868.0  901.0  934.0  967.0  1000.0  1033.0  1066.0
+ 11.0  44.0  77.0  110.0  143.0  176.0  209.0  242.0  275.0  308.0  341.0  374.0  407.0  440.0  473.0  506.0  539.0  572.0  605.0  638.0  671.0  704.0  737.0  770.0  803.0  836.0  869.0  902.0  935.0  968.0  1001.0  1034.0  1067.0
+ 12.0  45.0  78.0  111.0  144.0  177.0  210.0  243.0  276.0  309.0  342.0  375.0  408.0  441.0  474.0  507.0  540.0  573.0  606.0  639.0  672.0  705.0  738.0  771.0  804.0  837.0  870.0  903.0  936.0  969.0  1002.0  1035.0  1068.0
+ 13.0  46.0  79.0  112.0  145.0  178.0  211.0  244.0  277.0  310.0  343.0  376.0  409.0  442.0  475.0  508.0  541.0  574.0  607.0  640.0  673.0  706.0  739.0  772.0  805.0  838.0  871.0  904.0  937.0  970.0  1003.0  1036.0  1069.0
+ 14.0  47.0  80.0  113.0  146.0  179.0  212.0  245.0  278.0  311.0  344.0  377.0  410.0  443.0  476.0  509.0  542.0  575.0  608.0  641.0  674.0  707.0  740.0  773.0  806.0  839.0  872.0  905.0  938.0  971.0  1004.0  1037.0  1070.0
+ 15.0  48.0  81.0  114.0  147.0  180.0  213.0  246.0  279.0  312.0  345.0  378.0  411.0  444.0  477.0  510.0  543.0  576.0  609.0  642.0  675.0  708.0  741.0  774.0  807.0  840.0  873.0  906.0  939.0  972.0  1005.0  1038.0  1071.0
+ 16.0  49.0  82.0  115.0  148.0  181.0  214.0  247.0  280.0  313.0  346.0  379.0  412.0  445.0  478.0  511.0  544.0  577.0  610.0  643.0  676.0  709.0  742.0  775.0  808.0  841.0  874.0  907.0  940.0  973.0  1006.0  1039.0  1072.0
+ 17.0  50.0  83.0  116.0  149.0  182.0  215.0  248.0  281.0  314.0  347.0  380.0  413.0  446.0  479.0  512.0  545.0  578.0  611.0  644.0  677.0  710.0  743.0  776.0  809.0  842.0  875.0  908.0  941.0  974.0  1007.0  1040.0  1073.0
+ 18.0  51.0  84.0  117.0  150.0  183.0  216.0  249.0  282.0  315.0  348.0  381.0  414.0  447.0  480.0  513.0  546.0  579.0  612.0  645.0  678.0  711.0  744.0  777.0  810.0  843.0  876.0  909.0  942.0  975.0  1008.0  1041.0  1074.0
+ 19.0  52.0  85.0  118.0  151.0  184.0  217.0  250.0  283.0  316.0  349.0  382.0  415.0  448.0  481.0  514.0  547.0  580.0  613.0  646.0  679.0  712.0  745.0  778.0  811.0  844.0  877.0  910.0  943.0  976.0  1009.0  1042.0  1075.0
+ 20.0  53.0  86.0  119.0  152.0  185.0  218.0  251.0  284.0  317.0  350.0  383.0  416.0  449.0  482.0  515.0  548.0  581.0  614.0  647.0  680.0  713.0  746.0  779.0  812.0  845.0  878.0  911.0  944.0  977.0  1010.0  1043.0  1076.0
+ 21.0  54.0  87.0  120.0  153.0  186.0  219.0  252.0  285.0  318.0  351.0  384.0  417.0  450.0  483.0  516.0  549.0  582.0  615.0  648.0  681.0  714.0  747.0  780.0  813.0  846.0  879.0  912.0  945.0  978.0  1011.0  1044.0  1077.0
+ 22.0  55.0  88.0  121.0  154.0  187.0  220.0  253.0  286.0  319.0  352.0  385.0  418.0  451.0  484.0  517.0  550.0  583.0  616.0  649.0  682.0  715.0  748.0  781.0  814.0  847.0  880.0  913.0  946.0  979.0  1012.0  1045.0  1078.0
+ 23.0  56.0  89.0  122.0  155.0  188.0  221.0  254.0  287.0  320.0  353.0  386.0  419.0  452.0  485.0  518.0  551.0  584.0  617.0  650.0  683.0  716.0  749.0  782.0  815.0  848.0  881.0  914.0  947.0  980.0  1013.0  1046.0  1079.0
+ 24.0  57.0  90.0  123.0  156.0  189.0  222.0  255.0  288.0  321.0  354.0  387.0  420.0  453.0  486.0  519.0  552.0  585.0  618.0  651.0  684.0  717.0  750.0  783.0  816.0  849.0  882.0  915.0  948.0  981.0  1014.0  1047.0  1080.0
+ 25.0  58.0  91.0  124.0  157.0  190.0  223.0  256.0  289.0  322.0  355.0  388.0  421.0  454.0  487.0  520.0  553.0  586.0  619.0  652.0  685.0  718.0  751.0  784.0  817.0  850.0  883.0  916.0  949.0  982.0  1015.0  1048.0  1081.0
+ 26.0  59.0  92.0  125.0  158.0  191.0  224.0  257.0  290.0  323.0  356.0  389.0  422.0  455.0  488.0  521.0  554.0  587.0  620.0  653.0  686.0  719.0  752.0  785.0  818.0  851.0  884.0  917.0  950.0  983.0  1016.0  1049.0  1082.0
+ 27.0  60.0  93.0  126.0  159.0  192.0  225.0  258.0  291.0  324.0  357.0  390.0  423.0  456.0  489.0  522.0  555.0  588.0  621.0  654.0  687.0  720.0  753.0  786.0  819.0  852.0  885.0  918.0  951.0  984.0  1017.0  1050.0  1083.0
+ 28.0  61.0  94.0  127.0  160.0  193.0  226.0  259.0  292.0  325.0  358.0  391.0  424.0  457.0  490.0  523.0  556.0  589.0  622.0  655.0  688.0  721.0  754.0  787.0  820.0  853.0  886.0  919.0  952.0  985.0  1018.0  1051.0  1084.0
+ 29.0  62.0  95.0  128.0  161.0  194.0  227.0  260.0  293.0  326.0  359.0  392.0  425.0  458.0  491.0  524.0  557.0  590.0  623.0  656.0  689.0  722.0  755.0  788.0  821.0  854.0  887.0  920.0  953.0  986.0  1019.0  1052.0  1085.0
+ 30.0  63.0  96.0  129.0  162.0  195.0  228.0  261.0  294.0  327.0  360.0  393.0  426.0  459.0  492.0  525.0  558.0  591.0  624.0  657.0  690.0  723.0  756.0  789.0  822.0  855.0  888.0  921.0  954.0  987.0  1020.0  1053.0  1086.0
+ 31.0  64.0  97.0  130.0  163.0  196.0  229.0  262.0  295.0  328.0  361.0  394.0  427.0  460.0  493.0  526.0  559.0  592.0  625.0  658.0  691.0  724.0  757.0  790.0  823.0  856.0  889.0  922.0  955.0  988.0  1021.0  1054.0  1087.0
+ 32.0  65.0  98.0  131.0  164.0  197.0  230.0  263.0  296.0  329.0  362.0  395.0  428.0  461.0  494.0  527.0  560.0  593.0  626.0  659.0  692.0  725.0  758.0  791.0  824.0  857.0  890.0  923.0  956.0  989.0  1022.0  1055.0  1088.0
+ 33.0  66.0  99.0  132.0  165.0  198.0  231.0  264.0  297.0  330.0  363.0  396.0  429.0  462.0  495.0  528.0  561.0  594.0  627.0  660.0  693.0  726.0  759.0  792.0  825.0  858.0  891.0  924.0  957.0  990.0  1023.0  1056.0  1089.0</code></pre><pre><code class="language-julia">gpu_transpose(A)</code></pre><pre><code class="language-none">33×33 CUDA.CuArray{Float32,2}:
+    1.0     2.0     3.0     4.0     5.0     6.0     7.0     8.0     9.0    10.0    11.0    12.0    13.0    14.0    15.0    16.0    17.0    18.0    19.0    20.0    21.0    22.0    23.0    24.0    25.0    26.0    27.0    28.0    29.0    30.0    31.0    32.0    33.0
+   34.0    35.0    36.0    37.0    38.0    39.0    40.0    41.0    42.0    43.0    44.0    45.0    46.0    47.0    48.0    49.0    50.0    51.0    52.0    53.0    54.0    55.0    56.0    57.0    58.0    59.0    60.0    61.0    62.0    63.0    64.0    65.0    66.0
+   67.0    68.0    69.0    70.0    71.0    72.0    73.0    74.0    75.0    76.0    77.0    78.0    79.0    80.0    81.0    82.0    83.0    84.0    85.0    86.0    87.0    88.0    89.0    90.0    91.0    92.0    93.0    94.0    95.0    96.0    97.0    98.0    99.0
+  100.0   101.0   102.0   103.0   104.0   105.0   106.0   107.0   108.0   109.0   110.0   111.0   112.0   113.0   114.0   115.0   116.0   117.0   118.0   119.0   120.0   121.0   122.0   123.0   124.0   125.0   126.0   127.0   128.0   129.0   130.0   131.0   132.0
+  133.0   134.0   135.0   136.0   137.0   138.0   139.0   140.0   141.0   142.0   143.0   144.0   145.0   146.0   147.0   148.0   149.0   150.0   151.0   152.0   153.0   154.0   155.0   156.0   157.0   158.0   159.0   160.0   161.0   162.0   163.0   164.0   165.0
+  166.0   167.0   168.0   169.0   170.0   171.0   172.0   173.0   174.0   175.0   176.0   177.0   178.0   179.0   180.0   181.0   182.0   183.0   184.0   185.0   186.0   187.0   188.0   189.0   190.0   191.0   192.0   193.0   194.0   195.0   196.0   197.0   198.0
+  199.0   200.0   201.0   202.0   203.0   204.0   205.0   206.0   207.0   208.0   209.0   210.0   211.0   212.0   213.0   214.0   215.0   216.0   217.0   218.0   219.0   220.0   221.0   222.0   223.0   224.0   225.0   226.0   227.0   228.0   229.0   230.0   231.0
+  232.0   233.0   234.0   235.0   236.0   237.0   238.0   239.0   240.0   241.0   242.0   243.0   244.0   245.0   246.0   247.0   248.0   249.0   250.0   251.0   252.0   253.0   254.0   255.0   256.0   257.0   258.0   259.0   260.0   261.0   262.0   263.0   264.0
+  265.0   266.0   267.0   268.0   269.0   270.0   271.0   272.0   273.0   274.0   275.0   276.0   277.0   278.0   279.0   280.0   281.0   282.0   283.0   284.0   285.0   286.0   287.0   288.0   289.0   290.0   291.0   292.0   293.0   294.0   295.0   296.0   297.0
+  298.0   299.0   300.0   301.0   302.0   303.0   304.0   305.0   306.0   307.0   308.0   309.0   310.0   311.0   312.0   313.0   314.0   315.0   316.0   317.0   318.0   319.0   320.0   321.0   322.0   323.0   324.0   325.0   326.0   327.0   328.0   329.0   330.0
+  331.0   332.0   333.0   334.0   335.0   336.0   337.0   338.0   339.0   340.0   341.0   342.0   343.0   344.0   345.0   346.0   347.0   348.0   349.0   350.0   351.0   352.0   353.0   354.0   355.0   356.0   357.0   358.0   359.0   360.0   361.0   362.0   363.0
+  364.0   365.0   366.0   367.0   368.0   369.0   370.0   371.0   372.0   373.0   374.0   375.0   376.0   377.0   378.0   379.0   380.0   381.0   382.0   383.0   384.0   385.0   386.0   387.0   388.0   389.0   390.0   391.0   392.0   393.0   394.0   395.0   396.0
+  397.0   398.0   399.0   400.0   401.0   402.0   403.0   404.0   405.0   406.0   407.0   408.0   409.0   410.0   411.0   412.0   413.0   414.0   415.0   416.0   417.0   418.0   419.0   420.0   421.0   422.0   423.0   424.0   425.0   426.0   427.0   428.0   429.0
+  430.0   431.0   432.0   433.0   434.0   435.0   436.0   437.0   438.0   439.0   440.0   441.0   442.0   443.0   444.0   445.0   446.0   447.0   448.0   449.0   450.0   451.0   452.0   453.0   454.0   455.0   456.0   457.0   458.0   459.0   460.0   461.0   462.0
+  463.0   464.0   465.0   466.0   467.0   468.0   469.0   470.0   471.0   472.0   473.0   474.0   475.0   476.0   477.0   478.0   479.0   480.0   481.0   482.0   483.0   484.0   485.0   486.0   487.0   488.0   489.0   490.0   491.0   492.0   493.0   494.0   495.0
+  496.0   497.0   498.0   499.0   500.0   501.0   502.0   503.0   504.0   505.0   506.0   507.0   508.0   509.0   510.0   511.0   512.0   513.0   514.0   515.0   516.0   517.0   518.0   519.0   520.0   521.0   522.0   523.0   524.0   525.0   526.0   527.0   528.0
+  529.0   530.0   531.0   532.0   533.0   534.0   535.0   536.0   537.0   538.0   539.0   540.0   541.0   542.0   543.0   544.0   545.0   546.0   547.0   548.0   549.0   550.0   551.0   552.0   553.0   554.0   555.0   556.0   557.0   558.0   559.0   560.0   561.0
+  562.0   563.0   564.0   565.0   566.0   567.0   568.0   569.0   570.0   571.0   572.0   573.0   574.0   575.0   576.0   577.0   578.0   579.0   580.0   581.0   582.0   583.0   584.0   585.0   586.0   587.0   588.0   589.0   590.0   591.0   592.0   593.0   594.0
+  595.0   596.0   597.0   598.0   599.0   600.0   601.0   602.0   603.0   604.0   605.0   606.0   607.0   608.0   609.0   610.0   611.0   612.0   613.0   614.0   615.0   616.0   617.0   618.0   619.0   620.0   621.0   622.0   623.0   624.0   625.0   626.0   627.0
+  628.0   629.0   630.0   631.0   632.0   633.0   634.0   635.0   636.0   637.0   638.0   639.0   640.0   641.0   642.0   643.0   644.0   645.0   646.0   647.0   648.0   649.0   650.0   651.0   652.0   653.0   654.0   655.0   656.0   657.0   658.0   659.0   660.0
+  661.0   662.0   663.0   664.0   665.0   666.0   667.0   668.0   669.0   670.0   671.0   672.0   673.0   674.0   675.0   676.0   677.0   678.0   679.0   680.0   681.0   682.0   683.0   684.0   685.0   686.0   687.0   688.0   689.0   690.0   691.0   692.0   693.0
+  694.0   695.0   696.0   697.0   698.0   699.0   700.0   701.0   702.0   703.0   704.0   705.0   706.0   707.0   708.0   709.0   710.0   711.0   712.0   713.0   714.0   715.0   716.0   717.0   718.0   719.0   720.0   721.0   722.0   723.0   724.0   725.0   726.0
+  727.0   728.0   729.0   730.0   731.0   732.0   733.0   734.0   735.0   736.0   737.0   738.0   739.0   740.0   741.0   742.0   743.0   744.0   745.0   746.0   747.0   748.0   749.0   750.0   751.0   752.0   753.0   754.0   755.0   756.0   757.0   758.0   759.0
+  760.0   761.0   762.0   763.0   764.0   765.0   766.0   767.0   768.0   769.0   770.0   771.0   772.0   773.0   774.0   775.0   776.0   777.0   778.0   779.0   780.0   781.0   782.0   783.0   784.0   785.0   786.0   787.0   788.0   789.0   790.0   791.0   792.0
+  793.0   794.0   795.0   796.0   797.0   798.0   799.0   800.0   801.0   802.0   803.0   804.0   805.0   806.0   807.0   808.0   809.0   810.0   811.0   812.0   813.0   814.0   815.0   816.0   817.0   818.0   819.0   820.0   821.0   822.0   823.0   824.0   825.0
+  826.0   827.0   828.0   829.0   830.0   831.0   832.0   833.0   834.0   835.0   836.0   837.0   838.0   839.0   840.0   841.0   842.0   843.0   844.0   845.0   846.0   847.0   848.0   849.0   850.0   851.0   852.0   853.0   854.0   855.0   856.0   857.0   858.0
+  859.0   860.0   861.0   862.0   863.0   864.0   865.0   866.0   867.0   868.0   869.0   870.0   871.0   872.0   873.0   874.0   875.0   876.0   877.0   878.0   879.0   880.0   881.0   882.0   883.0   884.0   885.0   886.0   887.0   888.0   889.0   890.0   891.0
+  892.0   893.0   894.0   895.0   896.0   897.0   898.0   899.0   900.0   901.0   902.0   903.0   904.0   905.0   906.0   907.0   908.0   909.0   910.0   911.0   912.0   913.0   914.0   915.0   916.0   917.0   918.0   919.0   920.0   921.0   922.0   923.0   924.0
+  925.0   926.0   927.0   928.0   929.0   930.0   931.0   932.0   933.0   934.0   935.0   936.0   937.0   938.0   939.0   940.0   941.0   942.0   943.0   944.0   945.0   946.0   947.0   948.0   949.0   950.0   951.0   952.0   953.0   954.0   955.0   956.0   957.0
+  958.0   959.0   960.0   961.0   962.0   963.0   964.0   965.0   966.0   967.0   968.0   969.0   970.0   971.0   972.0   973.0   974.0   975.0   976.0   977.0   978.0   979.0   980.0   981.0   982.0   983.0   984.0   985.0   986.0   987.0   988.0   989.0   990.0
+  991.0   992.0   993.0   994.0   995.0   996.0   997.0   998.0   999.0  1000.0  1001.0  1002.0  1003.0  1004.0  1005.0  1006.0  1007.0  1008.0  1009.0  1010.0  1011.0  1012.0  1013.0  1014.0  1015.0  1016.0  1017.0  1018.0  1019.0  1020.0  1021.0  1022.0  1023.0
+ 1024.0  1025.0  1026.0  1027.0  1028.0  1029.0  1030.0  1031.0  1032.0  1033.0  1034.0  1035.0  1036.0  1037.0  1038.0  1039.0  1040.0  1041.0  1042.0  1043.0  1044.0  1045.0  1046.0  1047.0  1048.0  1049.0  1050.0  1051.0  1052.0  1053.0  1054.0  1055.0  1056.0
+ 1057.0  1058.0  1059.0  1060.0  1061.0  1062.0  1063.0  1064.0  1065.0  1066.0  1067.0  1068.0  1069.0  1070.0  1071.0  1072.0  1073.0  1074.0  1075.0  1076.0  1077.0  1078.0  1079.0  1080.0  1081.0  1082.0  1083.0  1084.0  1085.0  1086.0  1087.0  1088.0  1089.0</code></pre><pre><code class="language-julia">A = CUDA.rand(10000, 10000)
+B = similar(A)
+@benchmark CUDA.@sync gpu_transpose($A, $B)</code></pre><pre><code class="language-none">BenchmarkTools.Trial: 
+  memory estimate:  320 bytes
+  allocs estimate:  9
+  --------------
+  minimum time:     12.294 ms (0.00% GC)
+  median time:      12.439 ms (0.00% GC)
+  mean time:        12.488 ms (0.00% GC)
+  maximum time:     21.293 ms (0.00% GC)
+  --------------
+  samples:          401
+  evals/sample:     1</code></pre><pre><code class="language-julia">@benchmark CUDA.@sync $B .= $A</code></pre><pre><code class="language-none">BenchmarkTools.Trial: 
+  memory estimate:  464 bytes
+  allocs estimate:  13
+  --------------
+  minimum time:     7.312 ms (0.00% GC)
+  median time:      7.459 ms (0.00% GC)
+  mean time:        7.492 ms (0.00% GC)
+  maximum time:     14.024 ms (0.00% GC)
+  --------------
+  samples:          668
+  evals/sample:     1</code></pre><h2 id="Coalescing-Memory-Access"><a class="docs-heading-anchor" href="#Coalescing-Memory-Access">Coalescing Memory Access</a><a id="Coalescing-Memory-Access-1"></a><a class="docs-heading-anchor-permalink" href="#Coalescing-Memory-Access" title="Permalink"></a></h2><p>Compared to a simple elementwise copy we are roughly at 60% performance. Both kernels have a single load and store for each value. If all loads and stores were independent of each other then this should not have happened.</p><p>Consider a thread accessing(load or store) a single value in global memory. Instead of transferring just the one value the GPU will instead transfer a larger chunk of memory as a single transaction. For example on NVIDIA&#39;s K20 GPU this size was 128 bytes. When threads in a warp access consecutive memory addresses the GPU can service multiple threads in the same transaction. This is known as <strong>coalesced memory access</strong>. Access time is effectively reduced by minimizing the number of transactions. However when threads access non-sequentially or sparse data then transactions are serialised.</p><p>We want consecutive threads of a warp to access consecutive elements in memory. When the thread block is one-dimensional it is straightforward to determine a thread&#39;s<code>warpId</code> i.e. <code>warpId = threadId().x % warpsize()</code>. According to NVIDIA&#39;s documentation on <a href="https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#thread-hierarchy">thread hierarchy</a>.</p><blockquote><p>The index of a thread and its thread ID relate to each other in a straightforward way: For a one-dimensional block, they are the same; for a two-dimensional block of size (Dx, Dy),the thread ID of a thread of index (x, y) is (x + y Dx); for a three-dimensional block of size (Dx, Dy, Dz), the thread ID of a thread of index (x, y, z) is (x + y Dx + z Dx Dy).</p></blockquote><p>In our kernel there are four loads and stores per thread.</p><ul><li><code>tile_index = ((blockIdx().y, blockIdx().x) .- 1) .* TILE_DIM</code></li><li><code>thread_index = (threadIdx().y + (i - 1)*8, threadIdx().x)</code></li><li><code>index = CartesianIndex(tile_index .+ thread_index)</code></li><li><code>Load: input[index[2], index[1]]</code></li><li><code>Store: output[index[1], index[2]]</code></li></ul><p>The loads are coalesced because the column is indexed by <code>index[2]</code> which has <code>threadIdx().x</code> and the stores are non-coalesced because they are indexed by <code>index[1]</code> which has <code>threadIdx().y</code>.</p><p>To ensure coalescing during both loads and stores we will use shared memory. We will load from global memory a column and store it in shared memory as a row, effectively transposing it. Once all threads have written to shared memory we can write back to global memory column wise.</p><p><img src="../assets/coalesced_transpose.png" alt="Coalesced transpose"/></p><pre><code class="language-julia">function gpu_transpose_kernel2(input, output)
+    # Declare shared memory
+    shared = @cuStaticSharedMem(eltype(input), (TILE_DIM, TILE_DIM))
+
+    # Modify thread index so threadIdx().x dominates the column
+    block_index = ((blockIdx().y, blockIdx().x) .- 1) .* TILE_DIM
+
+    for i in 1:4
+        thread_index = (threadIdx().x, threadIdx().y + (i - 1)*8)
+        index = CartesianIndex(block_index .+ thread_index)
+
+        (index[1] &gt; size(input, 1) || index[2] &gt; size(input, 2)) &amp;&amp; continue
+        @inbounds shared[thread_index[2], thread_index[1]] = input[index]
+    end
+
+    # Barrier to ensure all threads have completed writing to shared memory
+    sync_threads()
+
+    # swap tile index
+    block_index = ((blockIdx().x, blockIdx().y) .- 1) .* TILE_DIM
+
+    for i in 1:4
+        thread_index = (threadIdx().x, threadIdx().y + (i - 1)*8)
+        index = CartesianIndex(block_index .+ thread_index)
+
+        (index[1] &gt; size(output, 1) || index[2] &gt; size(output, 2)) &amp;&amp; continue
+        @inbounds output[index] = shared[thread_index...]
+    end
+    return
+end
+
+function gpu_transpose_shmem(input, output = similar(input, (size(input, 2), size(input, 1))))
+    threads = (32, 8)
+    blocks = cld.(size(input), (32, 32))
+    @cuda blocks=blocks threads=threads gpu_transpose_kernel2(input, output)
+    output
+end</code></pre><pre><code class="language-none">gpu_transpose_shmem (generic function with 2 methods)</code></pre><pre><code class="language-julia">X = CuArray(reshape(1f0:1089, (33, 33)))
+Y = similar(X)
+gpu_transpose_shmem(X, Y)</code></pre><pre><code class="language-none">33×33 CUDA.CuArray{Float32,2}:
+    1.0     2.0     3.0     4.0     5.0     6.0     7.0     8.0     9.0    10.0    11.0    12.0    13.0    14.0    15.0    16.0    17.0    18.0    19.0    20.0    21.0    22.0    23.0    24.0    25.0    26.0    27.0    28.0    29.0    30.0    31.0    32.0    33.0
+   34.0    35.0    36.0    37.0    38.0    39.0    40.0    41.0    42.0    43.0    44.0    45.0    46.0    47.0    48.0    49.0    50.0    51.0    52.0    53.0    54.0    55.0    56.0    57.0    58.0    59.0    60.0    61.0    62.0    63.0    64.0    65.0    66.0
+   67.0    68.0    69.0    70.0    71.0    72.0    73.0    74.0    75.0    76.0    77.0    78.0    79.0    80.0    81.0    82.0    83.0    84.0    85.0    86.0    87.0    88.0    89.0    90.0    91.0    92.0    93.0    94.0    95.0    96.0    97.0    98.0    99.0
+  100.0   101.0   102.0   103.0   104.0   105.0   106.0   107.0   108.0   109.0   110.0   111.0   112.0   113.0   114.0   115.0   116.0   117.0   118.0   119.0   120.0   121.0   122.0   123.0   124.0   125.0   126.0   127.0   128.0   129.0   130.0   131.0   132.0
+  133.0   134.0   135.0   136.0   137.0   138.0   139.0   140.0   141.0   142.0   143.0   144.0   145.0   146.0   147.0   148.0   149.0   150.0   151.0   152.0   153.0   154.0   155.0   156.0   157.0   158.0   159.0   160.0   161.0   162.0   163.0   164.0   165.0
+  166.0   167.0   168.0   169.0   170.0   171.0   172.0   173.0   174.0   175.0   176.0   177.0   178.0   179.0   180.0   181.0   182.0   183.0   184.0   185.0   186.0   187.0   188.0   189.0   190.0   191.0   192.0   193.0   194.0   195.0   196.0   197.0   198.0
+  199.0   200.0   201.0   202.0   203.0   204.0   205.0   206.0   207.0   208.0   209.0   210.0   211.0   212.0   213.0   214.0   215.0   216.0   217.0   218.0   219.0   220.0   221.0   222.0   223.0   224.0   225.0   226.0   227.0   228.0   229.0   230.0   231.0
+  232.0   233.0   234.0   235.0   236.0   237.0   238.0   239.0   240.0   241.0   242.0   243.0   244.0   245.0   246.0   247.0   248.0   249.0   250.0   251.0   252.0   253.0   254.0   255.0   256.0   257.0   258.0   259.0   260.0   261.0   262.0   263.0   264.0
+  265.0   266.0   267.0   268.0   269.0   270.0   271.0   272.0   273.0   274.0   275.0   276.0   277.0   278.0   279.0   280.0   281.0   282.0   283.0   284.0   285.0   286.0   287.0   288.0   289.0   290.0   291.0   292.0   293.0   294.0   295.0   296.0   297.0
+  298.0   299.0   300.0   301.0   302.0   303.0   304.0   305.0   306.0   307.0   308.0   309.0   310.0   311.0   312.0   313.0   314.0   315.0   316.0   317.0   318.0   319.0   320.0   321.0   322.0   323.0   324.0   325.0   326.0   327.0   328.0   329.0   330.0
+  331.0   332.0   333.0   334.0   335.0   336.0   337.0   338.0   339.0   340.0   341.0   342.0   343.0   344.0   345.0   346.0   347.0   348.0   349.0   350.0   351.0   352.0   353.0   354.0   355.0   356.0   357.0   358.0   359.0   360.0   361.0   362.0   363.0
+  364.0   365.0   366.0   367.0   368.0   369.0   370.0   371.0   372.0   373.0   374.0   375.0   376.0   377.0   378.0   379.0   380.0   381.0   382.0   383.0   384.0   385.0   386.0   387.0   388.0   389.0   390.0   391.0   392.0   393.0   394.0   395.0   396.0
+  397.0   398.0   399.0   400.0   401.0   402.0   403.0   404.0   405.0   406.0   407.0   408.0   409.0   410.0   411.0   412.0   413.0   414.0   415.0   416.0   417.0   418.0   419.0   420.0   421.0   422.0   423.0   424.0   425.0   426.0   427.0   428.0   429.0
+  430.0   431.0   432.0   433.0   434.0   435.0   436.0   437.0   438.0   439.0   440.0   441.0   442.0   443.0   444.0   445.0   446.0   447.0   448.0   449.0   450.0   451.0   452.0   453.0   454.0   455.0   456.0   457.0   458.0   459.0   460.0   461.0   462.0
+  463.0   464.0   465.0   466.0   467.0   468.0   469.0   470.0   471.0   472.0   473.0   474.0   475.0   476.0   477.0   478.0   479.0   480.0   481.0   482.0   483.0   484.0   485.0   486.0   487.0   488.0   489.0   490.0   491.0   492.0   493.0   494.0   495.0
+  496.0   497.0   498.0   499.0   500.0   501.0   502.0   503.0   504.0   505.0   506.0   507.0   508.0   509.0   510.0   511.0   512.0   513.0   514.0   515.0   516.0   517.0   518.0   519.0   520.0   521.0   522.0   523.0   524.0   525.0   526.0   527.0   528.0
+  529.0   530.0   531.0   532.0   533.0   534.0   535.0   536.0   537.0   538.0   539.0   540.0   541.0   542.0   543.0   544.0   545.0   546.0   547.0   548.0   549.0   550.0   551.0   552.0   553.0   554.0   555.0   556.0   557.0   558.0   559.0   560.0   561.0
+  562.0   563.0   564.0   565.0   566.0   567.0   568.0   569.0   570.0   571.0   572.0   573.0   574.0   575.0   576.0   577.0   578.0   579.0   580.0   581.0   582.0   583.0   584.0   585.0   586.0   587.0   588.0   589.0   590.0   591.0   592.0   593.0   594.0
+  595.0   596.0   597.0   598.0   599.0   600.0   601.0   602.0   603.0   604.0   605.0   606.0   607.0   608.0   609.0   610.0   611.0   612.0   613.0   614.0   615.0   616.0   617.0   618.0   619.0   620.0   621.0   622.0   623.0   624.0   625.0   626.0   627.0
+  628.0   629.0   630.0   631.0   632.0   633.0   634.0   635.0   636.0   637.0   638.0   639.0   640.0   641.0   642.0   643.0   644.0   645.0   646.0   647.0   648.0   649.0   650.0   651.0   652.0   653.0   654.0   655.0   656.0   657.0   658.0   659.0   660.0
+  661.0   662.0   663.0   664.0   665.0   666.0   667.0   668.0   669.0   670.0   671.0   672.0   673.0   674.0   675.0   676.0   677.0   678.0   679.0   680.0   681.0   682.0   683.0   684.0   685.0   686.0   687.0   688.0   689.0   690.0   691.0   692.0   693.0
+  694.0   695.0   696.0   697.0   698.0   699.0   700.0   701.0   702.0   703.0   704.0   705.0   706.0   707.0   708.0   709.0   710.0   711.0   712.0   713.0   714.0   715.0   716.0   717.0   718.0   719.0   720.0   721.0   722.0   723.0   724.0   725.0   726.0
+  727.0   728.0   729.0   730.0   731.0   732.0   733.0   734.0   735.0   736.0   737.0   738.0   739.0   740.0   741.0   742.0   743.0   744.0   745.0   746.0   747.0   748.0   749.0   750.0   751.0   752.0   753.0   754.0   755.0   756.0   757.0   758.0   759.0
+  760.0   761.0   762.0   763.0   764.0   765.0   766.0   767.0   768.0   769.0   770.0   771.0   772.0   773.0   774.0   775.0   776.0   777.0   778.0   779.0   780.0   781.0   782.0   783.0   784.0   785.0   786.0   787.0   788.0   789.0   790.0   791.0   792.0
+  793.0   794.0   795.0   796.0   797.0   798.0   799.0   800.0   801.0   802.0   803.0   804.0   805.0   806.0   807.0   808.0   809.0   810.0   811.0   812.0   813.0   814.0   815.0   816.0   817.0   818.0   819.0   820.0   821.0   822.0   823.0   824.0   825.0
+  826.0   827.0   828.0   829.0   830.0   831.0   832.0   833.0   834.0   835.0   836.0   837.0   838.0   839.0   840.0   841.0   842.0   843.0   844.0   845.0   846.0   847.0   848.0   849.0   850.0   851.0   852.0   853.0   854.0   855.0   856.0   857.0   858.0
+  859.0   860.0   861.0   862.0   863.0   864.0   865.0   866.0   867.0   868.0   869.0   870.0   871.0   872.0   873.0   874.0   875.0   876.0   877.0   878.0   879.0   880.0   881.0   882.0   883.0   884.0   885.0   886.0   887.0   888.0   889.0   890.0   891.0
+  892.0   893.0   894.0   895.0   896.0   897.0   898.0   899.0   900.0   901.0   902.0   903.0   904.0   905.0   906.0   907.0   908.0   909.0   910.0   911.0   912.0   913.0   914.0   915.0   916.0   917.0   918.0   919.0   920.0   921.0   922.0   923.0   924.0
+  925.0   926.0   927.0   928.0   929.0   930.0   931.0   932.0   933.0   934.0   935.0   936.0   937.0   938.0   939.0   940.0   941.0   942.0   943.0   944.0   945.0   946.0   947.0   948.0   949.0   950.0   951.0   952.0   953.0   954.0   955.0   956.0   957.0
+  958.0   959.0   960.0   961.0   962.0   963.0   964.0   965.0   966.0   967.0   968.0   969.0   970.0   971.0   972.0   973.0   974.0   975.0   976.0   977.0   978.0   979.0   980.0   981.0   982.0   983.0   984.0   985.0   986.0   987.0   988.0   989.0   990.0
+  991.0   992.0   993.0   994.0   995.0   996.0   997.0   998.0   999.0  1000.0  1001.0  1002.0  1003.0  1004.0  1005.0  1006.0  1007.0  1008.0  1009.0  1010.0  1011.0  1012.0  1013.0  1014.0  1015.0  1016.0  1017.0  1018.0  1019.0  1020.0  1021.0  1022.0  1023.0
+ 1024.0  1025.0  1026.0  1027.0  1028.0  1029.0  1030.0  1031.0  1032.0  1033.0  1034.0  1035.0  1036.0  1037.0  1038.0  1039.0  1040.0  1041.0  1042.0  1043.0  1044.0  1045.0  1046.0  1047.0  1048.0  1049.0  1050.0  1051.0  1052.0  1053.0  1054.0  1055.0  1056.0
+ 1057.0  1058.0  1059.0  1060.0  1061.0  1062.0  1063.0  1064.0  1065.0  1066.0  1067.0  1068.0  1069.0  1070.0  1071.0  1072.0  1073.0  1074.0  1075.0  1076.0  1077.0  1078.0  1079.0  1080.0  1081.0  1082.0  1083.0  1084.0  1085.0  1086.0  1087.0  1088.0  1089.0</code></pre><pre><code class="language-julia">@benchmark CUDA.@sync gpu_transpose_shmem($A, $B)</code></pre><pre><code class="language-none">BenchmarkTools.Trial: 
+  memory estimate:  320 bytes
+  allocs estimate:  9
+  --------------
+  minimum time:     7.362 ms (0.00% GC)
+  median time:      7.496 ms (0.00% GC)
+  mean time:        7.520 ms (0.00% GC)
+  maximum time:     10.611 ms (0.00% GC)
+  --------------
+  samples:          665
+  evals/sample:     1</code></pre><pre><code class="language-julia">@benchmark CUDA.@sync B .= A</code></pre><pre><code class="language-none">BenchmarkTools.Trial: 
+  memory estimate:  464 bytes
+  allocs estimate:  13
+  --------------
+  minimum time:     7.398 ms (0.00% GC)
+  median time:      7.516 ms (0.00% GC)
+  mean time:        7.538 ms (0.00% GC)
+  maximum time:     9.225 ms (0.00% GC)
+  --------------
+  samples:          663
+  evals/sample:     1</code></pre><h3 id="Shared-Memory-Bank-conflicts"><a class="docs-heading-anchor" href="#Shared-Memory-Bank-conflicts">Shared Memory Bank conflicts</a><a id="Shared-Memory-Bank-conflicts-1"></a><a class="docs-heading-anchor-permalink" href="#Shared-Memory-Bank-conflicts" title="Permalink"></a></h3><p>Inside a SM, shared memory is divided into banks. Modern NVIDIA GPUs have 32 banks which have a 4-byte boundary. This means addresses 1-4 of shared memory are serviced by bank 1, addresses 5-8 are serviced by bank two and so on. When multiple threads access memory from the same bank then their requests are serialised.</p><p>Nsight compute gives statistics about shared memory usage. Running the profiler on <code>gpu_transpose_shmem</code> for an input of 33x33 of <code>Float32</code> we get:</p><p><img src="../assets/shmem-conflicts.png" alt="shared-memory-conflicts"/></p><p>It reports zero conflicts during shared loads because of we load columnwise. The 1023 store conflicts can be explained as follows. When an entire column is read it is stored to a row. Consecutive elements in a row differ in address by <code>column_length*sizeof(datatype)</code>. In 33 tile columns we write directly to a complete row where 32 elements are written hence there are 31 write conflicts (33*31 = 1023). <code>CUDA.jl</code> docs have a brief Nsight compute usage guide <a href="https://juliagpu.github.io/CUDA.jl/dev/development/profiling/#NVIDIA-Nsight-Compute">here</a>.</p><p>The fix is quite simple, pad the column length in shared memory by 1. Now consecutive elements in a row will differ by 33 % 32 = 1 hence no more bank conflicts.</p><p>i.e. <code>shared = @cuStaticSharedMem(eltype(input), (TILE_DIM + 1, TILE_DIM))</code></p><pre><code class="language-julia">function gpu_transpose_kernel3(input, output)
+    # Declare shared memory
+    shared = @cuStaticSharedMem(eltype(input), (TILE_DIM + 1, TILE_DIM))
+
+    # Modify thread index so threadIdx().x dominates the column
+    block_index = ((blockIdx().y, blockIdx().x) .- 1) .* TILE_DIM
+
+    for i in 1:4
+        thread_index = (threadIdx().x, threadIdx().y + (i - 1)*8)
+        index = CartesianIndex(block_index .+ thread_index)
+
+        (index[1] &gt; size(input, 1) || index[2] &gt; size(input, 2)) &amp;&amp; continue
+        @inbounds shared[thread_index[2], thread_index[1]] = input[index]
+    end
+
+    # Barrier to ensure all threads have completed writing to shared memory
+    sync_threads()
+
+    # swap tile index
+    block_index = ((blockIdx().x, blockIdx().y) .- 1) .* TILE_DIM
+
+    for i in 1:4
+        thread_index = (threadIdx().x, threadIdx().y + (i - 1)*8)
+        index = CartesianIndex(block_index .+ thread_index)
+
+        (index[1] &gt; size(output, 1) || index[2] &gt; size(output, 2)) &amp;&amp; continue
+        @inbounds output[index] = shared[thread_index...]
+    end
+    return
+end
+
+function gpu_transpose_noconf(input, output = similar(input, (size(input, 2), size(input, 1))))
+    threads = (32, 8)
+    blocks = cld.(size(input), (32, 32))
+    @cuda blocks=blocks threads=threads gpu_transpose_kernel3(input, output)
+    output
+end</code></pre><pre><code class="language-none">gpu_transpose_noconf (generic function with 2 methods)</code></pre><pre><code class="language-julia">@benchmark CUDA.@sync gpu_transpose_noconf($A, $B)</code></pre><pre><code class="language-none">BenchmarkTools.Trial: 
+  memory estimate:  320 bytes
+  allocs estimate:  9
+  --------------
+  minimum time:     6.034 ms (0.00% GC)
+  median time:      6.178 ms (0.00% GC)
+  mean time:        6.193 ms (0.00% GC)
+  maximum time:     9.271 ms (0.00% GC)
+  --------------
+  samples:          808
+  evals/sample:     1</code></pre><pre><code class="language-julia">@benchmark CUDA.@sync gpu_transpose_shmem($A, $B)</code></pre><pre><code class="language-none">BenchmarkTools.Trial: 
+  memory estimate:  320 bytes
+  allocs estimate:  9
+  --------------
+  minimum time:     7.387 ms (0.00% GC)
+  median time:      7.535 ms (0.00% GC)
+  mean time:        7.556 ms (0.00% GC)
+  maximum time:     8.623 ms (0.00% GC)
+  --------------
+  samples:          662
+  evals/sample:     1</code></pre><p>An obvious improvement, we can also confirm with Nsight compute if there are no bank conflicts.</p><p><img src="../assets/shmem-noconf.png" alt="shmem-noconf"/></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="02-Mandelbrot_Set.html">« Mandelbrot Set</a><a class="docs-footer-nextpage" href="04-Reduction.html">Reduction »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Friday 4 December 2020 01:43">Friday 4 December 2020</span>. Using Julia version 1.5.0.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

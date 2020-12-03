@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Reduction · CUDATutorials.jl</title><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit">CUDATutorials.jl</span></div><form class="docs-search" action="../search.html"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../index.html">Home</a></li><li><span class="tocitem">Introduction</span><ul><li><a class="tocitem" href="01-Introduction.html">Introduction</a></li><li><a class="tocitem" href="02-Mandelbrot_Set.html">Mandelbrot Set</a></li><li><a class="tocitem" href="03-Shared_Memory.html">Shared Memory</a></li><li class="is-active"><a class="tocitem" href="04-Reduction.html">Reduction</a><ul class="internal"><li class="toplevel"><a class="tocitem" href="#Examples"><span>Examples</span></a></li><li class="toplevel"><a class="tocitem" href="#Reduction-1-:-Divide-and-Conquer"><span>Reduction 1 : Divide and Conquer</span></a></li><li class="toplevel"><a class="tocitem" href="#Reduction-2-:-Strided-Index"><span>Reduction 2 : Strided Index</span></a></li><li class="toplevel"><a class="tocitem" href="#Reduction-3-:-Sequential-access"><span>Reduction 3 : Sequential access</span></a></li><li class="toplevel"><a class="tocitem" href="#Reduction-4-:-Warp-Shuffle"><span>Reduction 4 : Warp Shuffle</span></a></li></ul></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Introduction</a></li><li class="is-active"><a href="04-Reduction.html">Reduction</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href="04-Reduction.html">Reduction</a></li></ul></nav><div class="docs-right"><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Reduction"><a class="docs-heading-anchor" href="#Reduction">Reduction</a><a id="Reduction-1"></a><a class="docs-heading-anchor-permalink" href="#Reduction" title="Permalink"></a></h1><p>The <code>reduce</code> function takes in a binary operator <code>⊕</code> and a ordered collection, applying the operator to that collection effectively reducing it to one final value.</p><p>For example, the operator ⊕ can be <code>minimum</code> and the collection can be an array of Integers. ⊕ can also be <code>addition</code> or <code>xor</code> and the collection may represent any type of object as long as the operator makes sense in the context.</p><pre><code class="language-julia">using CUDA
+
+a = rand(10)</code></pre><pre><code class="language-none">10-element Array{Float64,1}:
+ 0.7230095099881184
+ 0.16638704100244883
+ 0.9595290619436863
+ 0.9624943069172827
+ 0.7628593834842048
+ 0.293362503794262
+ 0.8860580664131226
+ 0.6855748945100439
+ 0.7001695020731629
+ 0.7521785598391935</code></pre><pre><code class="language-julia">reduce(min, a)</code></pre><pre><code class="language-none">0.16638704100244883</code></pre><pre><code class="language-julia">reduce(*, a)</code></pre><pre><code class="language-none">0.007954449625853871</code></pre><pre><code class="language-julia">@doc reduce(*, a)</code></pre><pre><code class="language-none">reduce(op, itr; [init])</code></pre><p>Reduce the given collection <code>itr</code> with the given binary operator <code>op</code>. If provided, the initial value <code>init</code> must be a neutral element for <code>op</code> that will be returned for empty collections. It is unspecified whether <code>init</code> is used for non-empty collections.</p><p>For empty collections, providing <code>init</code> will be necessary, except for some special cases (e.g. when <code>op</code> is one of <code>+</code>, <code>*</code>, <code>max</code>, <code>min</code>, <code>&amp;</code>, <code>|</code>) when Julia can determine the neutral element of <code>op</code>.</p><p>Reductions for certain commonly-used operators may have special implementations, and should be used instead: <code>maximum(itr)</code>, <code>minimum(itr)</code>, <code>sum(itr)</code>, <code>prod(itr)</code>,  <code>any(itr)</code>, <code>all(itr)</code>.</p><p>The associativity of the reduction is implementation dependent. This means that you can&#39;t use non-associative operations like <code>-</code> because it is undefined whether <code>reduce(-,[1,2,3])</code> should be evaluated as <code>(1-2)-3</code> or <code>1-(2-3)</code>. Use <a href="introduction/@ref"><code>foldl</code></a> or <a href="introduction/@ref"><code>foldr</code></a> instead for guaranteed left or right associativity.</p><p>Some operations accumulate error. Parallelism will be easier if the reduction can be executed in groups. Future versions of Julia might change the algorithm. Note that the elements are not reordered if you use an ordered collection.</p><h1 id="Examples"><a class="docs-heading-anchor" href="#Examples">Examples</a><a id="Examples-1"></a><a class="docs-heading-anchor-permalink" href="#Examples" title="Permalink"></a></h1><pre><code class="language-julia-repl">julia&gt; reduce(*, [2; 3; 4])
+24
+
+julia&gt; reduce(*, [2; 3; 4]; init=-1)
+-24</code></pre><p>Writing <code>reduce</code> for a CPU is quite straightforward with a single <code>for-loop</code>. We will focus on writing a reduction for a linear array in this tutorial. We will iteratively develop a performant version using everything we have learnt in the previous tutorials.</p><hr/><h1 id="Reduction-1-:-Divide-and-Conquer"><a class="docs-heading-anchor" href="#Reduction-1-:-Divide-and-Conquer">Reduction 1 : Divide and Conquer</a><a id="Reduction-1-:-Divide-and-Conquer-1"></a><a class="docs-heading-anchor-permalink" href="#Reduction-1-:-Divide-and-Conquer" title="Permalink"></a></h1><p>The first step is to write something that works on the GPU. If we were given a dual-core machine and expected to parallelize this we would split the input array into two halves and feed each half into a different CPU. Similarly the best hint is to use the <a href="https://en.wikipedia.org/wiki/Divide-and-conquer_algorithm">divide-and-conquer</a> approach. By envisioning the reduction process as a binary tree we get:</p><p><img src="../assets/reduction1.png" alt="reduction-1"/></p><p>It would be a good exercise to try to write model the above process in pseudocode.</p><p>One such approach is:</p><p>The only issue with this approach on the GPU is that after each step we need to synchronize which won&#39;t be possible with arrays which span over a single thread block (1024 threads is the maximum threads in a block). Hence, we will have to use a recursive approach.</p><p>Assume for now we have <span>$1024$</span> threads per block and process one element per thread. If we have <span>$2048$</span> threads then we will run our algorithm with two thread blocks, storing the results in an intermediate array. After our first kernel is done we will perform a reduction on the intermediate array. And if we have an array whose length is greater than <span>$1024^2$</span> we will have another level of recursion. If there are <span>$1024*1024 + 1$</span> elements then the <span>$1^{st}$</span> level of reduction will return an intermediate array of size <span>$1025$</span> which will take another level of recursion to process.</p><pre><code class="language-julia">function reduction1(op, a::CuArray)
+    threadsPerBlock = 1024
+    len = length(a)
+
+    sums = similar(a, cld(len, threadsPerBlock))
+
+    blocks = cld(len, threadsPerBlock)
+    shmem = sizeof(eltype(a))*threadsPerBlock
+    @cuda shmem=shmem threads=threadsPerBlock blocks=blocks reduction1_kernel(op, a, sums)
+
+    # Recursively call reduction for larger arrays
+    if length(sums) &gt; 1
+        return reduction1(op, sums)[1]
+    end
+
+    CUDA.@allowscalar return sums[1]
+end</code></pre><pre><code class="language-none">reduction1 (generic function with 1 method)</code></pre><pre><code class="language-julia">function reduction1_kernel(op, a, sums)
+    shmem = @cuDynamicSharedMem(eltype(a), (blockDim().x, ))
+    tid = (blockIdx().x - 1) * blockDim().x + threadIdx().x
+    index = threadIdx().x
+    len = blockDim().x
+
+    # Adjust length for the last block
+    if blockIdx().x == gridDim().x
+        len = mod1(length(a), blockDim().x)
+    end
+
+    if tid &lt;= length(a)
+        shmem[index] = a[tid]
+    else
+        return
+    end
+    sync_threads()
+
+    steps = floor(Int, CUDA.log2(convert(Float32, len)))
+    for i = 0:steps
+        if mod(index - 1, 2^(i + 1)) == 0 &amp;&amp; (index + 2^i) &lt;= len
+            shmem[index] = op(shmem[index], shmem[index + 2^i])
+        end
+        sync_threads()
+    end
+
+    if index == 1
+        sums[blockIdx().x] = shmem[1]
+    end
+    return
+end</code></pre><pre><code class="language-none">reduction1_kernel (generic function with 1 method)</code></pre><pre><code class="language-julia">a = CUDA.ones(1025);
+reduction1(+, a)</code></pre><pre><code class="language-none">1025.0f0</code></pre><pre><code class="language-julia">a = CUDA.rand(100_000);
+println(reduction1(+, a),&quot;  &quot;,reduce(+, a))</code></pre><pre><code class="language-none">49962.688  49962.68
+</code></pre><p>The two results above not being exactly equal is expected since IEEE floats are neither associative nor commutative. Since associativity is tough to achieve on a parallel algorithm we can expect some deviation.</p><hr/><h1 id="Reduction-2-:-Strided-Index"><a class="docs-heading-anchor" href="#Reduction-2-:-Strided-Index">Reduction 2 : Strided Index</a><a id="Reduction-2-:-Strided-Index-1"></a><a class="docs-heading-anchor-permalink" href="#Reduction-2-:-Strided-Index" title="Permalink"></a></h1><p>One problem with the last reduction was divergent branching, for example thread three is active for exactly one computation (<code>a[3] op a[4]</code>) and is never used again. Because GPU&#39;s operate warpwise we want to use all the resources of a warp instead of a small subset. When threads in a warp do different things it has diverged and it&#39;s efficiency drops. In this case with each iteration half the number of threads go inactive.</p><p>A simple fix is to change the way threads map to the elements by using a strided index</p><p><img src="../assets/reduction2.png" alt="reduction-2"/></p><pre><code class="language-julia">function reduction2_kernel(op, a, sums)
+    shmem = @cuDynamicSharedMem(eltype(a), (blockDim().x, ))
+    tid = (blockIdx().x - 1) * blockDim().x + threadIdx().x
+    index = threadIdx().x
+    len = blockDim().x
+
+    # Adjust length for the last block
+    if blockIdx().x == gridDim().x
+        len = mod1(length(a), blockDim().x)
+    end
+
+    if tid &lt;= length(a)
+        shmem[index] = a[tid]
+    else
+        return
+    end
+    sync_threads()
+
+    steps = floor(Int, CUDA.log2(convert(Float32, len)))
+    for i = 0:steps
+        stride = 2^i
+        sindex = 2*stride*(index - 1) + 1
+        if sindex + stride &lt;= len
+            shmem[sindex] = op(shmem[sindex], shmem[sindex + stride])
+        end
+        sync_threads()
+    end
+
+    if index == 1
+        sums[blockIdx().x] = shmem[1]
+    end
+    return
+end</code></pre><pre><code class="language-none">reduction2_kernel (generic function with 1 method)</code></pre><pre><code class="language-julia">function reduction2(op, a::CuArray)
+    threadsPerBlock = 1024
+    len = length(a)
+
+    sums = similar(a, cld(len, threadsPerBlock))
+
+    blocks = cld(len, threadsPerBlock)
+    shmem = sizeof(eltype(a))*threadsPerBlock
+    @cuda shmem=shmem threads=threadsPerBlock blocks=blocks reduction2_kernel(op, a, sums)
+
+    # Recursively call reduction for larger arrays
+    if length(sums) &gt; 1
+        return reduction2(op, sums)
+    end
+
+    CUDA.@allowscalar return sums[1]
+end</code></pre><pre><code class="language-none">reduction2 (generic function with 1 method)</code></pre><pre><code class="language-julia">a = CUDA.ones(100_000);
+reduction2(+, a)</code></pre><pre><code class="language-none">100000.0f0</code></pre><pre><code class="language-julia">@time CUDA.@sync reduction1(+, a);
+@time CUDA.@sync reduction2(+, a);
+nothing #hide</code></pre><pre><code class="language-none">  0.000451 seconds (73 allocations: 3.406 KiB)
+  0.000281 seconds (72 allocations: 3.031 KiB)
+</code></pre><h1 id="Reduction-3-:-Sequential-access"><a class="docs-heading-anchor" href="#Reduction-3-:-Sequential-access">Reduction 3 : Sequential access</a><a id="Reduction-3-:-Sequential-access-1"></a><a class="docs-heading-anchor-permalink" href="#Reduction-3-:-Sequential-access" title="Permalink"></a></h1><p>In both the above implementations our memory-access pattern is <em>strided</em> which is difficult to coalesce. We discussed <em>coalesced</em> memory access in the <strong>Shared Memory</strong> tutorial.</p><p><strong>TL;DR</strong> When consecutive threads access consecutive locations in memory, the GPU combines several transactions into a fewer transactions which is called coalesced memory access. When memory accesses are not consecutive which happens when the locations are non-sequantial, sparse or misaligned the GPU hardware is unable to reduce the number of transactions. Since transactions are serviced sequentially there is a significant performance penalty for non-coalesced access.</p><p>To make use of sequantial access instead of <code>stride</code> iterating from 1 to <code>length ÷ 2</code> we can do it the other way around (<code>length ÷ 2</code>:1)</p><p><strong>NOTE</strong>: The algorithm below assumes that the <code>blockDim</code> is a power of two. Transforming it to become friendly with non-power of two can be done as an exercise.</p><pre><code class="language-julia">function reduction3_kernel(op, a, sums)
+    shmem = @cuDynamicSharedMem(eltype(a), (blockDim().x, ))
+    tid = (blockIdx().x - 1) * blockDim().x + threadIdx().x
+    index = threadIdx().x
+    len = blockDim().x
+
+    # Adjust length for the last block
+    if blockIdx().x == gridDim().x
+        len = mod1(length(a), blockDim().x)
+    end
+
+    if tid &lt;= length(a)
+        @inbounds shmem[index] = a[tid]
+    else
+        return
+    end
+    sync_threads()
+
+    stride = len ÷ 2
+    while stride &gt; 0
+        if index &lt;= stride &amp;&amp; index + stride &lt;= len
+            shmem[index] = op(shmem[index], shmem[index + stride])
+        end
+        stride = stride ÷ 2
+        sync_threads()
+    end
+
+    if index == 1
+        @inbounds sums[blockIdx().x] = shmem[1]
+    end
+
+    return
+end</code></pre><pre><code class="language-none">reduction3_kernel (generic function with 1 method)</code></pre><pre><code class="language-julia">function reduction3(op, a::CuArray)
+    threadsPerBlock = 1024
+    len = length(a)
+
+    sums = similar(a, cld(len, threadsPerBlock))
+
+    blocks = cld(len, threadsPerBlock)
+    shmem = sizeof(eltype(a))*threadsPerBlock
+    @cuda shmem=shmem threads=threadsPerBlock blocks=blocks reduction3_kernel(op, a, sums)
+
+    # Recursively call reduction for larger arrays
+    if length(sums) &gt; 1
+        return reduction3(op, sums)[1]
+    end
+
+    CUDA.@allowscalar return sums[1]
+    return sums
+end</code></pre><pre><code class="language-none">reduction3 (generic function with 1 method)</code></pre><pre><code class="language-julia">a = CUDA.ones(1024);
+reduction3(+, a)</code></pre><pre><code class="language-none">1024.0f0</code></pre><pre><code class="language-julia">a = CUDA.ones(Int, 1024 * 1024);
+reduction3(+, a)</code></pre><pre><code class="language-none">1048576</code></pre><pre><code class="language-julia">CUDA.@time reduction2(+, a);
+CUDA.@time reduction3(+, a);
+nothing #hide</code></pre><pre><code class="language-none">  0.806616 seconds (771.02 k CPU allocations: 38.272 MiB, 0.88% gc time) (2 GPU allocations: 8.008 KiB, 0.01% gc time of which 46.73% spent allocating)
+  0.000311 seconds (68 CPU allocations: 2.922 KiB) (2 GPU allocations: 8.008 KiB, 7.17% gc time of which 71.49% spent allocating)
+</code></pre><h1 id="Reduction-4-:-Warp-Shuffle"><a class="docs-heading-anchor" href="#Reduction-4-:-Warp-Shuffle">Reduction 4 : Warp Shuffle</a><a id="Reduction-4-:-Warp-Shuffle-1"></a><a class="docs-heading-anchor-permalink" href="#Reduction-4-:-Warp-Shuffle" title="Permalink"></a></h1><p>A powerful feature in modern GPUs is the ability to communicate within warps with the help of special instructions. Currently we transfer data with the help of shared memory which obviously requires <code>sync_threads()</code> and access to shared memory. Warp shuffle functions allow transferring memory within a warp without the use of shared memory also being much faster and not requiring any explicit barrier. The only drawback is that only the following primitive types are supported: <code>Int32, UInt32, Int64, UInt64, Float32, Float64</code> and any arbitrary source to destination lane mapping is not permitted.</p><p>There are four shuffle methods.</p><ul><li><code>shfl_sync</code></li><li><code>shfl_up_sync</code></li><li><code>shfl_down_sync</code></li><li><code>shfl_xor_sync</code></li></ul><pre><code class="language-julia">@doc shfl_sync</code></pre><pre><code class="language-none">shfl_sync(threadmask::UInt32, val, lane::Integer, width::Integer=32)</code></pre><p>Shuffle a value from a directly indexed lane <code>lane</code>, and synchronize threads according to <code>threadmask</code>.</p><p><code>shfl_sync</code> acts as a broadcast transferring a lane&#39;s value to all other lane.</p><pre><code class="language-julia">function broadcast_gpu(lane)
+    id = threadIdx().x
+    val = id
+    mask = typemax(UInt32) # 0xffffffff
+    newval = shfl_sync(mask, val, lane)
+    @cuprint(&quot;id: &quot;, id, &quot;\t value: &quot;, val, &quot;\t new value: &quot;, newval, &quot;\n&quot;)
+    return
+end
+
+@cuda threads=32 blocks=1 broadcast_gpu(19)</code></pre><p><code>shfl_up_sync</code> and <code>shfl_down_sync</code> copy the value from lane = current_lane ± delta. If lane is out of bounds from the warp then</p><pre><code class="language-julia">@doc shfl_down_sync</code></pre><pre><code class="language-none">shfl_down_sync(threadmask::UInt32, val, delta::Integer, width::Integer=32)</code></pre><p>Shuffle a value from a lane with higher ID relative to caller, and synchronize threads according to <code>threadmask</code>.</p><pre><code class="language-julia">function shfldown_gpu(delta)
+    id = threadIdx().x
+    val = id
+    mask = typemax(UInt32) # 0xffffffff
+    newval = shfl_down_sync(mask, val, delta)
+    @cuprint(&quot;id: &quot;, id, &quot;\t old value: &quot;, val, &quot;\t new value: &quot;, newval, &quot;\n&quot;)
+    return
+end
+
+@cuda threads=32 blocks=1 shfldown_gpu(2)
+synchronize()</code></pre><pre><code class="language-none">id: 1	 value: 1	 new value: 19
+id: 2	 value: 2	 new value: 19
+id: 3	 value: 3	 new value: 19
+id: 4	 value: 4	 new value: 19
+id: 5	 value: 5	 new value: 19
+id: 6	 value: 6	 new value: 19
+id: 7	 value: 7	 new value: 19
+id: 8	 value: 8	 new value: 19
+id: 9	 value: 9	 new value: 19
+id: 10	 value: 10	 new value: 19
+id: 11	 value: 11	 new value: 19
+id: 12	 value: 12	 new value: 19
+id: 13	 value: 13	 new value: 19
+id: 14	 value: 14	 new value: 19
+id: 15	 value: 15	 new value: 19
+id: 16	 value: 16	 new value: 19
+id: 17	 value: 17	 new value: 19
+id: 18	 value: 18	 new value: 19
+id: 19	 value: 19	 new value: 19
+id: 20	 value: 20	 new value: 19
+id: 21	 value: 21	 new value: 19
+id: 22	 value: 22	 new value: 19
+id: 23	 value: 23	 new value: 19
+id: 24	 value: 24	 new value: 19
+id: 25	 value: 25	 new value: 19
+id: 26	 value: 26	 new value: 19
+id: 27	 value: 27	 new value: 19
+id: 28	 value: 28	 new value: 19
+id: 29	 value: 29	 new value: 19
+id: 30	 value: 30	 new value: 19
+id: 31	 value: 31	 new value: 19
+id: 32	 value: 32	 new value: 19
+id: 1	 old value: 1	 new value: 3
+id: 2	 old value: 2	 new value: 4
+id: 3	 old value: 3	 new value: 5
+id: 4	 old value: 4	 new value: 6
+id: 5	 old value: 5	 new value: 7
+id: 6	 old value: 6	 new value: 8
+id: 7	 old value: 7	 new value: 9
+id: 8	 old value: 8	 new value: 10
+id: 9	 old value: 9	 new value: 11
+id: 10	 old value: 10	 new value: 12
+id: 11	 old value: 11	 new value: 13
+id: 12	 old value: 12	 new value: 14
+id: 13	 old value: 13	 new value: 15
+id: 14	 old value: 14	 new value: 16
+id: 15	 old value: 15	 new value: 17
+id: 16	 old value: 16	 new value: 18
+id: 17	 old value: 17	 new value: 19
+id: 18	 old value: 18	 new value: 20
+id: 19	 old value: 19	 new value: 21
+id: 20	 old value: 20	 new value: 22
+id: 21	 old value: 21	 new value: 23
+id: 22	 old value: 22	 new value: 24
+id: 23	 old value: 23	 new value: 25
+id: 24	 old value: 24	 new value: 26
+id: 25	 old value: 25	 new value: 27
+id: 26	 old value: 26	 new value: 28
+id: 27	 old value: 27	 new value: 29
+id: 28	 old value: 28	 new value: 30
+id: 29	 old value: 29	 new value: 31
+id: 30	 old value: 30	 new value: 32
+id: 31	 old value: 31	 new value: 31
+id: 32	 old value: 32	 new value: 32
+</code></pre><p>We can use <code>shfl_down_sync</code> to reduce a warp much faster than shared memory.</p><pre><code class="language-julia">@inline function reducewarp(op, val, mask = typemax(UInt32))
+    val = op(val, shfl_down_sync(mask, val, 1))
+    val = op(val, shfl_down_sync(mask, val, 2))
+    val = op(val, shfl_down_sync(mask, val, 4))
+    val = op(val, shfl_down_sync(mask, val, 8))
+    val = op(val, shfl_down_sync(mask, val, 16))
+    return val
+end
+
+function reduction4_kernel(op, a, sums)
+    tid = (blockIdx().x - 1) * blockDim().x + threadIdx().x
+    lane_id = tid % 32
+    warp_id = cld(tid, 32)
+
+    # exit
+    tid &gt; length(a) &amp;&amp; return
+
+    # set essential
+    tid &lt;= length(a) &amp;&amp; (val = a[tid])
+
+    val = reducewarp(op, val)
+    lane_id == 1 &amp;&amp; (sums[warp_id] = val)
+    return
+end
+
+function reduction4(op, a::CuArray)
+    threadsPerBlock = 1024
+    len = length(a)
+
+    sums = similar(a, cld(len, 32))
+
+    blocks = cld(len, threadsPerBlock)
+    shmem = sizeof(eltype(a))*threadsPerBlock
+    @cuda threads=threadsPerBlock blocks=blocks reduction4_kernel(op, a, sums)
+
+    # Recursively call reduction for larger arrays
+    if length(sums) &gt; 1
+        return reduction4(op, sums)
+    end
+
+    CUDA.@allowscalar return sums[1]
+    return sums
+end</code></pre><pre><code class="language-none">reduction4 (generic function with 1 method)</code></pre><pre><code class="language-julia">a = CUDA.ones(Int, 320_000)
+reduction4(+, a)</code></pre><pre><code class="language-none">320000</code></pre><p>There is one big problem with our implementation, the input length is expected to be a multiple of 32. This problem can be solved either by defining a neutral element for <code>op</code> (<code>zero(eltype(a))</code> for <code>+</code>, <code>one(eltype(a))</code> for <code>*</code>) however this won&#39;t work with <code>xor</code>. Another is to force the last warp&#39;s computation via shared memory like earlier examples. We correct this by having only 1 thread work for the last warp; this is a simple solution that is inefficient but when the number of warps is large the performance hit shouldn&#39;t be too high.</p><pre><code class="language-julia">function reduction5_kernel(op, a, sums)
+    tid = (blockIdx().x - 1) * blockDim().x + threadIdx().x
+    lane_id = tid % 32
+    warp_id = cld(tid, 32)
+
+    # exit non essential
+    tid &gt; cld(length(a), 32)*32 &amp;&amp; return
+
+    # set essential
+    tid &lt;= length(a) &amp;&amp; (val = a[tid])
+
+    # Manage last warp
+    if warp_id*32 &gt; length(a)
+        if lane_id == 1
+            for i=(tid + 1):length(a)
+                val = op(val, a[i])
+            end
+        end
+    else
+        val = reducewarp(op, val)
+    end
+
+    lane_id == 1 &amp;&amp; (sums[warp_id] = val)
+    return
+end
+
+function reduction5(op, a::CuArray)
+    threadsPerBlock = 1024
+    len = length(a)
+
+    sums = similar(a, cld(len, 32))
+
+    blocks = cld(len, threadsPerBlock)
+    shmem = sizeof(eltype(a))*threadsPerBlock
+    @cuda threads=threadsPerBlock blocks=blocks reduction5_kernel(op, a, sums)
+
+    # Recursively call reduction for larger arrays
+    if length(sums) &gt; 1
+        return reduction5(op, sums)
+    end
+
+    CUDA.@allowscalar return sums[1]
+    return sums
+end</code></pre><pre><code class="language-none">reduction5 (generic function with 1 method)</code></pre><pre><code class="language-julia">a = CUDA.ones(Int, 5_000_000)
+reduction5(+, a)</code></pre><pre><code class="language-none">5000000</code></pre><pre><code class="language-julia">@time CUDA.@sync reduction3(+, a);
+@time CUDA.@sync reduction5(+, a);
+nothing #hide</code></pre><pre><code class="language-none">  0.001485 seconds (101 allocations: 4.344 KiB)
+  0.000761 seconds (171 allocations: 6.984 KiB)
+</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="03-Shared_Memory.html">« Shared Memory</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Friday 4 December 2020 01:43">Friday 4 December 2020</span>. Using Julia version 1.5.0.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
