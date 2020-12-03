@@ -163,7 +163,11 @@ To disallow scalar operations altogether use the `CUDA.allowscalar()` function.
 =#
 
 CUDA.allowscalar(false)
-arr[1]
+try
+    arr[1]
+catch e
+    println("Error Caught: ", e)
+end
 
 #=
 To temporarily allow it in an experssion use the `@allowscalar` macro. However it is suggested that once your application executes correctly on the GPU, you should disallow scalar indexing and use GPU-friendly array operations instead. Accessing GPU memory in a scalar fashion is extremely detrimental to performance. 

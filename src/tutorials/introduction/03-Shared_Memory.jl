@@ -189,11 +189,11 @@ gpu_transpose(A)
 
 A = CUDA.rand(10000, 10000)
 B = similar(A)
-@benchmark CUDA.@sync gpu_transpose(A, B)
+@benchmark CUDA.@sync gpu_transpose($A, $B)
 
 #-
 
-@benchmark CUDA.@sync B .= A
+@benchmark CUDA.@sync $B .= $A
 
 #=
 ## Coalescing Memory Access
@@ -335,11 +335,11 @@ end
 
 A = CUDA.rand(10000, 10000)
 B = similar(A)
-@benchmark CUDA.@sync gpu_transpose_noconf(A, B)
+@benchmark CUDA.@sync gpu_transpose_noconf($A, $B)
 
 #-
 
-@benchmark CUDA.@sync gpu_transpose_shmem(A, B)
+@benchmark CUDA.@sync gpu_transpose_shmem($A, $B)
 
 #=
 An obvious improvement, we can also confirm with Nsight compute if there are no bank conflicts.
