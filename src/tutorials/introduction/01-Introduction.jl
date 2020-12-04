@@ -37,7 +37,7 @@ function axpy!(A, X, Y)
     end
 end
 
-N = 2^29
+N = 2^27
 v1 = rand(Float32, N)
 v2 = rand(Float32, N)
 v2_copy = copy(v2) # maintain a copy of the original

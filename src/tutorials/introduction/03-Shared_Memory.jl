@@ -263,15 +263,13 @@ end
 
 #-
 
-A = CuArray(reshape(1f0:1089, (33, 33)))
-B = similar(A)
-gpu_transpose_shmem(A, B)
+X = CuArray(reshape(1f0:1089, (33, 33)))
+Y = similar(X)
+gpu_transpose_shmem(X, Y)
 
 #-
 
-A = CUDA.rand(10000, 10000)
-B = similar(A)
-@benchmark CUDA.@sync gpu_transpose_shmem(A, B)
+@benchmark CUDA.@sync gpu_transpose_shmem($A, $B)
 
 #-
 
@@ -333,8 +331,6 @@ end
 
 #-
 
-A = CUDA.rand(10000, 10000)
-B = similar(A)
 @benchmark CUDA.@sync gpu_transpose_noconf($A, $B)
 
 #-
